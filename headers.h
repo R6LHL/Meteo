@@ -11,6 +11,8 @@
 
 #include <Serial_measure.h>
 
+#include <TaskManager_.h>
+
 #ifdef DS18B20
   #include <OneWire.h>
 #endif
