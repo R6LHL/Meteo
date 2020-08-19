@@ -1,10 +1,10 @@
 #include "headers.h"
 #include <TaskManager_.h>
-
-#ifdef DS18B20
-  #include <OneWire.h>
-#endif
-
+///////////////////////////////////////////////////////
+/* SYSTEM ERROR CODES
+ *  0 - system ok
+ *  1 - extrenal sensor type is wrong
+ */
 ////////////////////////////////////////////////////////
 //variables
 
@@ -14,9 +14,12 @@ Serial_measure _temp;
 Serial_measure _press;
 Serial_measure _hum;
 
+byte system_error_code = 0;
+
 #ifdef DS18B20
 OneWire ext_temp_sens(EXTERNAL_SENSOR_PIN);
 byte ext_temp_addr[8];
+byte ext_temp_data[9];
 #endif
 
 bool device_sleep = false;
@@ -61,6 +64,7 @@ ISR(INT0_vect)
     meteo_sensor.takeForcedMeasurement();
 
 #ifdef DS18B20
+
     
     
     TaskManager::SetTask_(collect_meteo, _BME280_FORCED_DELAY);
@@ -68,6 +72,8 @@ ISR(INT0_vect)
   
  void collect_meteo(void)
   {
+    
+    
     _temp.set_new_value(meteo_sensor.readTemperature());
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
     _hum.set_new_value(meteo_sensor.readHumidity());
@@ -278,6 +284,18 @@ void setup()
   TCCR2B |= (1<<CS22); // (clk/64)
   TIMSK2 |= (1<<TOIE2); // ovf interrupt enabled
 
+#ifdef DS18B20
+ext_temp_sens.search(ext_temp_addr); //searching address of ds18b20
+if (ext_temp_addr[0] == 0x28) //check sensor type
+{
+  ext_temp_sens.reset();
+  ext_temp_sens.select(ext_temp_addr);
+  ext_temp_sens.write(0x44,0); // start conversion with full power supply
+}
+else {system_error_code = 1;}
+}
+#endif
+
   interrupts();
 
   //pinMode(LED_BUILTIN, OUTPUT);
@@ -300,7 +318,7 @@ void setup()
     Adafruit_BME280::SAMPLING_X16, /* Давление передискретизация */
     Adafruit_BME280::SAMPLING_X1,  /* humidity*/
     Adafruit_BME280::FILTER_X16); /* Фильрация. */
-     
+       
   lcd.init();                     
   lcd.backlight();// Включаем подсветку дисплея
   
