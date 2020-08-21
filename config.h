@@ -12,13 +12,14 @@
 
 #define _BME280_FORCED_DELAY (14)
 
+
 #define WAKE_BUTTON (2)
 
-//#define EXTERNAL_SENSOR_ENABLED
+#define EXTERNAL_SENSOR (DS18B20) //comment this string if no external sensor present
 
-#ifdef EXTERNAL_SENSOR_ENABLED
-  #define DS18B20
+#if EXTERNAL_SENSOR == DS18B20
   #define EXTERNAL_SENSOR_PIN (10)
+  #define DS18B20_FORCED_DELAY (750)
 #endif
 
 #endif

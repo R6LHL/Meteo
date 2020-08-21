@@ -23,12 +23,16 @@
 /////////////////////////TASKS DEFINITIONS////////////////////////
   void read_meteo(void)
   {
-    meteo_sensor.takeForcedMeasurement();
-
-
     
+#ifdef EXTERNAL_SENSOR    
+#if EXTERNAL_SENSOR == DS18B20
+  ext_temp_sens.write(0x44,0); // start conversion with full power supply
+#endif
+#endif
     
-    TaskManager::SetTask_(collect_meteo, _BME280_FORCED_DELAY);
+    meteo_sensor.takeForcedMeasurement();    
+     
+    TaskManager::SetTask_(collect_meteo, 750);
   }
   
  void collect_meteo(void)

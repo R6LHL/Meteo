@@ -13,8 +13,10 @@
 
 #include <TaskManager_.h>
 
-#ifdef DS18B20
+#ifdef EXTERNAL_SENSOR
+#if EXTERNAL_SENSOR == DS18B20
   #include <OneWire.h>
+#endif
 #endif
 
 

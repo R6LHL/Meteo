@@ -4,6 +4,7 @@
 /* SYSTEM ERROR CODES
  *  0 - system ok
  *  1 - extrenal sensor type is wrong
+ *  2 - external sensor CRC is wrong
  */
 ////////////////////////////////////////////////////////
 //variables
@@ -16,10 +17,12 @@ Serial_measure _hum;
 
 byte system_error_code = 0;
 
-#ifdef DS18B20
+#ifdef EXTERNAL_SENSOR
+#if EXTERNAL_SENSOR == DS18B20
 OneWire ext_temp_sens(EXTERNAL_SENSOR_PIN);
 byte ext_temp_addr[8];
 byte ext_temp_data[9];
+#endif
 #endif
 
 bool device_sleep = false;
@@ -52,17 +55,18 @@ void setup()
  
   TCCR2B |= (1<<CS22); // (clk/64)
   TIMSK2 |= (1<<TOIE2); // ovf interrupt enabled
-
-#ifdef DS18B20
-ext_temp_sens.search(ext_temp_addr); //searching address of ds18b20
-if (ext_temp_addr[0] == 0x28) //check sensor type
-{
-  ext_temp_sens.reset();
-  ext_temp_sens.select(ext_temp_addr);
-  ext_temp_sens.write(0x44,0); // start conversion with full power supply
-}
-else {system_error_code = 1;}
-}
+  
+#ifdef EXTERNAL_SENSOR
+  #if EXTERNAL_SENSOR == DS18B20
+    ext_temp_sens.search(ext_temp_addr); //searching address of ds18b20
+    if (ext_temp_addr[0] == 0x28) //check sensor type
+    {
+      ext_temp_sens.reset();
+      ext_temp_sens.select(ext_temp_addr);
+      ext_temp_sens.write(0x44,0); // start conversion with full power supply
+    }
+    else {system_error_code = 1;}
+#endif
 #endif
 
   interrupts();
