@@ -20,17 +20,17 @@
 #endif
 
 #ifdef EXTERNAL_SENSOR
-#if EXTERNAL_SENSOR == DS18B20
-  OneWire ext_temp_sens(EXTERNAL_SENSOR_PIN);
-  byte ext_temp_addr[8];
-  byte ext_temp_data[BYTE_ITERATOR];
-  byte HighByte;
-  byte LowByte; 
-  double external_temperature;
-  byte tempInt; 
-  byte tempFloat;
-  Serial_measure _temp_ext;
-#endif
+  #if EXTERNAL_SENSOR == DS18B20
+    OneWire ext_temp_sens(EXTERNAL_SENSOR_PIN);
+    byte ext_temp_addr[8];
+    byte ext_temp_data[BYTE_ITERATOR];
+    byte HighByte;
+    byte LowByte; 
+    double external_temperature;
+    byte tempInt; 
+    byte tempFloat;
+    Serial_measure _temp_ext;
+  #endif
 #endif
 
 
@@ -89,7 +89,7 @@ void setup()
     {
       ext_temp_sens.reset();
       ext_temp_sens.select(ext_temp_addr);
-      ext_temp_sens.write(0x44,0); // start conversion with full power supply
+     // ext_temp_sens.write(0x44,0); // start conversion with full power supply
     }
     else {system_error_code = 1;}
   #endif

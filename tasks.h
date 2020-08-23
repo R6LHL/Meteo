@@ -26,18 +26,22 @@
   {
     
 #if EXTERNAL_SENSOR == DS18B20
-    ext_temp_sens.write(0x44,0); // start conversion with full power supply
+    noInterrupts();
+    ext_temp_sens.reset();
+    ext_temp_sens.select(ext_temp_addr);
+    ext_temp_sens.write(0x44,1); // start conversion
+    interrupts();
 #endif
 
 #if INTERNAL_SENSOR == BME280
     meteo_sensor.takeForcedMeasurement();
 #endif
-   
     TaskManager::SetTask_(collect_meteo, 750);
   }
   
  void collect_meteo(void)
   {   
+    
 #if INTERNAL_SENSOR == BME280  
     _temp_int.set_new_value(meteo_sensor.readTemperature());
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
@@ -45,11 +49,15 @@
 #endif
 
 #if EXTERNAL_SENSOR == DS18B20
+    noInterrupts();
+    ext_temp_sens.reset();
+    ext_temp_sens.select(ext_temp_addr);
     ext_temp_sens.write(0xBE,0); // make sensor transmit scratchpad
     for(char i = 0; i < BYTE_ITERATOR; i++)
     {
       ext_temp_data[i] = ext_temp_sens.read();
     }
+    interrupts();
     HighByte = ext_temp_data[1];
     LowByte = ext_temp_data[0];
 
@@ -70,6 +78,8 @@
       _temp_ext.set_new_value(external_temperature);
   
 #endif
+
+    
     
     TaskManager::SetTask_(wake_or_sleep,0);
     TaskManager::SetTask_(read_meteo, _SENSOR_ASK_DELAY_MS);
@@ -92,6 +102,7 @@
 #if UART_ENABLED == 1    
     Serial.print(TEXT_TEMPERATURE_IS);
     Serial.print(_temp_ext.get_middle_value());
+    //Serial.print(external_temperature);         //DEBUG
     Serial.println(TEXT_CELSIUS_DEGREE);
 #endif    
 
@@ -101,6 +112,7 @@
     lcd.print(TEXT_TEMPERATURE_IS);
     lcd.setCursor(0,1);
     lcd.print(_temp_ext.get_middle_value());
+    //lcd.print(external_temperature);            //DEBUG
     lcd.print(TEXT_CELSIUS_DEGREE);
 #endif
             

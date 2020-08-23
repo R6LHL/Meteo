@@ -38,8 +38,8 @@ const unsigned char WAKE_BUTTON = (2);
 #define EXTERNAL_SENSOR (DS18B20) //comment this string if no external sensor present
 
 #if EXTERNAL_SENSOR == DS18B20
-  const unsigned char EXTERNAL_SENSOR_PIN = (10);
-  const unsigned int DS18B20_FORCED_DELAY =  (750);
+  const unsigned char EXTERNAL_SENSOR_PIN = (3);
+  const unsigned int DS18B20_FORCED_DELAY =  (1000);
   #define BYTE_ITERATOR (9)
 #endif
 
