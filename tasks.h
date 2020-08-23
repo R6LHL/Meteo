@@ -24,24 +24,25 @@
   void read_meteo(void)
   {
     
-#ifdef EXTERNAL_SENSOR    
 #if EXTERNAL_SENSOR == DS18B20
-  ext_temp_sens.write(0x44,0); // start conversion with full power supply
+    ext_temp_sens.write(0x44,0); // start conversion with full power supply
 #endif
+
+#if INTERNAL_SENSOR == BME280
+    meteo_sensor.takeForcedMeasurement();
 #endif
-    
-    meteo_sensor.takeForcedMeasurement();    
-     
+   
     TaskManager::SetTask_(collect_meteo, 750);
   }
   
  void collect_meteo(void)
-  {
-    
-    
+  {   
+#if INTERNAL_SENSOR == BME280  
     _temp.set_new_value(meteo_sensor.readTemperature());
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
     _hum.set_new_value(meteo_sensor.readHumidity());
+#endif
+    
     TaskManager::SetTask_(wake_or_sleep,0);
     TaskManager::SetTask_(read_meteo, _SENSOR_ASK_DELAY_MS);
   }
@@ -60,106 +61,162 @@
 //////PRINT Temperature/////////
   void print_meteo_Temp(void)
   {
+#if UART_ENABLED == 1    
     Serial.print(F("Temperature is "));
     Serial.print(_temp.get_middle_value());
     Serial.println(F(" *C"));
-    
+#endif    
+
+#if LCD_TYPE == LCD1602
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(F("Temperature is"));
     lcd.setCursor(0,1);
     lcd.print(_temp.get_middle_value());
     lcd.print(F(" *C"));
+#endif
             
     TaskManager::SetTask_(compare_Temp,_SCREEN_DELAY);
   }
 
   void compare_Temp(void)
   {
+#if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(F("Temperature is"));
     lcd.setCursor(0,1);
+#endif
 
+#if UART_ENABLED == 1  
     Serial.print(F("Temperature is "));
+#endif
 
     if (_temp.get_value_state() == Serial_measure::Value_state::falling)
     {
-      lcd.print(F("falling "));
-      Serial.print(F("falling "));
+      #if LCD_TYPE == LCD1602  
+        lcd.print(F("falling "));
+      #endif
+      
+      #if UART_ENABLED == 1  
+        Serial.print(F("falling "));
+      #endif
     }
 
     else if (_temp.get_value_state() == Serial_measure::Value_state::rising)
     {
-      lcd.print(F("rising "));
-      Serial.print(F("rising "));
+      #if LCD_TYPE == LCD1602 
+        lcd.print(F("rising "));
+      #endif
+
+      #if UART_ENABLED == 1 
+        Serial.print(F("rising "));
+      #endif
     }
 
     else if (_temp.get_value_state() == Serial_measure::Value_state::stable)
     {
-      lcd.print(F("stable "));
-      Serial.print(F("stable "));
+      #if LCD_TYPE == LCD1602 
+        lcd.print(F("stable "));
+      #endif
+      
+      #if UART_ENABLED == 1 
+        Serial.print(F("stable "));
+      #endif
     }
 
     else {TaskManager::SetTask_(print_meteo_Press,0); return;}
 
-    lcd.print(_temp.get_state_not_change_times());
-    lcd.print(F("min"));
-    Serial.print(_temp.get_state_not_change_times());
-    Serial.println(F("min"));
+    #if LCD_TYPE == LCD1602 
+      lcd.print(_temp.get_state_not_change_times());
+      lcd.print(F("min"));
+    #endif
+      
+    #if UART_ENABLED == 1 
+      Serial.print(_temp.get_state_not_change_times());
+      Serial.println(F("min"));
+    #endif
     
     TaskManager::SetTask_(print_meteo_Press,_SCREEN_DELAY);
   }
 //////PRINT Pressure/////////
   void  print_meteo_Press(void)
   {
-    Serial.print(F("Pressure is "));
-    Serial.print(_press.get_middle_value());
-    Serial.println(F(" hPa"));
+    #if UART_ENABLED == 1 
+      Serial.print(F("Pressure is "));
+      Serial.print(_press.get_middle_value());
+      Serial.println(F(" hPa"));
+    #endif
 
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(F("Pressure is "));
-    lcd.setCursor(0,1);
-    lcd.print(_press.get_middle_value());
-    lcd.print(F(" hPa"));
+    #if LCD_TYPE == LCD1602 
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(F("Pressure is "));
+      lcd.setCursor(0,1);
+      lcd.print(_press.get_middle_value());
+      lcd.print(F(" hPa"));
+    #endif
     
     TaskManager::SetTask_(compare_Press,_SCREEN_DELAY);
   }
 
   void compare_Press(void)
   {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(F("Pressure is "));
-    lcd.setCursor(0,1);
+    #if LCD_TYPE == LCD1602 
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(F("Pressure is "));
+      lcd.setCursor(0,1);
+    #endif
 
-    Serial.print(F("Pressure is "));
+    #if UART_ENABLED == 1 
+      Serial.print(F("Pressure is "));
+    #endif
 
     if (_press.get_value_state() == Serial_measure::Value_state::falling)
     {
-      lcd.print(F("falling "));
-      Serial.print(F("falling "));
+      #if LCD_TYPE == LCD1602 
+        lcd.print(F("falling "));
+      #endif
+
+      #if UART_ENABLED == 1
+        Serial.print(F("falling "));
+      #endif
     }
 
     else if (_press.get_value_state() == Serial_measure::Value_state::rising)
     {
-      lcd.print(F("rising "));
-      Serial.print(F("rising "));
+      #if LCD_TYPE == LCD1602 
+        lcd.print(F("rising "));
+      #endif
+
+      #if UART_ENABLED == 1
+        Serial.print(F("rising "));
+      #endif
     }
 
     else if (_press.get_value_state() == Serial_measure::Value_state::stable)
     {
-      lcd.print(F("stable "));
-      Serial.print(F("stable "));    
+      #if LCD_TYPE == LCD1602 
+        lcd.print(F("stable "));
+      #endif
+      
+      #if LCD_TYPE == LCD1602
+        Serial.print(F("stable ")); 
+      #endif   
     }
     
     else {TaskManager::SetTask_(print_meteo_Hum,0); return;}
-    
-    lcd.print(_press.get_state_not_change_times());
-    lcd.print(F("min"));
-    Serial.print(_press.get_state_not_change_times());
-    Serial.println(F("min"));
+
+    #if LCD_TYPE == LCD1602
+      lcd.print(_press.get_state_not_change_times());
+      lcd.print(F("min"));
+    #endif
+
+    #if UART_ENABLED == 1
+      Serial.print(_press.get_state_not_change_times());
+      Serial.println(F("min"));
+    #endif
     
     TaskManager::SetTask_(print_meteo_Hum,_SCREEN_DELAY);
   }
@@ -167,76 +224,111 @@
 //////PRINT humidity/////////
   void  print_meteo_Hum(void)
   {
-   Serial.print(F("Humidity is "));
-   Serial.print(_hum.get_middle_value());
-   Serial.println(F(" %"));
+   #if UART_ENABLED == 1
+    Serial.print(F("Humidity is "));
+    Serial.print(_hum.get_middle_value());
+    Serial.println(F(" %"));
+   #endif
    
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(F("Humidity is"));
-    lcd.setCursor(0,1);
-    lcd.print(_hum.get_middle_value());
-    lcd.print(F(" %"));
+   #if LCD_TYPE == LCD1602
+     lcd.clear();
+     lcd.setCursor(0,0);
+     lcd.print(F("Humidity is"));
+     lcd.setCursor(0,1);
+     lcd.print(_hum.get_middle_value());
+     lcd.print(F(" %"));
+   #endif 
        
    TaskManager::SetTask_(compare_Hum,_SCREEN_DELAY);
   }
 
   void compare_Hum(void)
   {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(F("Humidity is "));
-    lcd.setCursor(0,1);
+    #if LCD_TYPE == LCD1602
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(F("Humidity is "));
+      lcd.setCursor(0,1);
+    #endif
 
-    Serial.print(F("Humidity is "));
+    #if UART_ENABLED == 1
+      Serial.print(F("Humidity is "));
+    #endif
 
     if (_hum.get_value_state() == Serial_measure::Value_state::falling)
     {
-      lcd.print(F("falling "));
-      Serial.print(F("falling "));
+      #if LCD_TYPE == LCD1602
+        lcd.print(F("falling "));
+      #endif
+
+      #if UART_ENABLED == 1
+        Serial.print(F("falling "));
+      #endif
     }
 
     else if (_hum.get_value_state() == Serial_measure::Value_state::rising)
     {
-      lcd.print(F("rising "));
-      Serial.print(F("rising "));
+      #if LCD_TYPE == LCD1602
+        lcd.print(F("rising "));
+      #endif
+
+      #if UART_ENABLED == 1
+        Serial.print(F("rising "));
+      #endif
     }
 
     else if (_hum.get_value_state() == Serial_measure::Value_state::stable)
     {
-      lcd.print(F("stable "));
-      Serial.print(F("stable "));    
+      #if LCD_TYPE == LCD1602
+        lcd.print(F("stable "));
+      #endif
+
+      #if UART_ENABLED == 1
+        Serial.print(F("stable "));   
+      #endif
     }
     
     else {TaskManager::SetTask_(device_sleep_,0); return;}
     
-    lcd.print(_hum.get_state_not_change_times());
-    lcd.print(F("min"));
-    Serial.print(_hum.get_state_not_change_times());
-    Serial.println(F("min"));
+    #if LCD_TYPE == LCD1602
+      lcd.print(_hum.get_state_not_change_times());
+      lcd.print(F("min"));
+    #endif
+      
+    #if UART_ENABLED == 1
+      Serial.print(_hum.get_state_not_change_times());
+      Serial.println(F("min"));
+    #endif
     
     TaskManager::SetTask_(device_sleep_,_SCREEN_DELAY);
   }
 
   void device_sleep_(void)
   {
-    lcd.clear();
-    lcd.noBacklight();
+    #if LCD_TYPE == LCD1602
+      lcd.clear();
+      lcd.noBacklight();
+    #endif
+    
     device_sleep = true;
 
      TaskManager::SetTask_(read_meteo, _SENSOR_ASK_DELAY_MS);
      TaskManager::DeleteTask_(print_meteo_Temp);
 
     noInterrupts();
-    PCICR |= (1<<PCIE0);
+    PCICR |= (1<<PCIE0); //Wait for button press to wake up device
     EIMSK |= (1<<INT0);
     interrupts();
   }
 
  void device_wake(void)
  {
-  lcd.backlight();
+  #if LCD_TYPE == LCD1602
+    lcd.backlight();
+  #endif
+  
   device_sleep = false;
+  
   TaskManager::DeleteTask_(read_meteo);
   TaskManager::SetTask_(print_meteo_Temp,0);
  }

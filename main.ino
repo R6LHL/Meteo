@@ -87,8 +87,8 @@ void setup()
     else {system_error_code = 1;}
   #endif
 #endif
-//////////////////////////////////
 
+//////////////////////////////////
   interrupts();
 
   //pinMode(LED_BUILTIN, OUTPUT);
@@ -111,21 +111,21 @@ void setup()
 ////////////////////////////////
 #if INTERNAL_SENSOR == BME280
     #if UART_ENABLED == 1
-      Serial.println(F("BME280 Sensor event test"));
+      Serial.println(TEXT_BME280_SELFTEST);
     #endif
     
     #if LCD_AVAILABLE == 1
-      lcd.print(F("BME280 Sensor event test"));
+      lcd.print(TEXT_BME280_SELFTEST);
     #endif
      
     if (!meteo_sensor.begin(0x76)) 
     {                                // Инициализация датчика BME280
       #if UART_ENABLED == 1
-       Serial.println(F("Could not find a valid BME280!"));  // Печать сообщения об ошибки
+       Serial.println(TEXT_BME280_NOT_FOUND);  // Печать сообщения об ошибки
       #endif
 
       #if LCD_AVAILABLE == 1
-        lcd.print(F("Could not find a valid BME280!"));
+        lcd.print(TEXT_BME280_NOT_FOUND);
       #endif
       
        while (1);
@@ -139,26 +139,20 @@ void setup()
     
 #endif
 
-////////////////////////////////
-#if UART_ENABLED == 1
-  Serial.println(F("Reading..."));
-#endif
-
-#if LCD_AVAILABLE == 1
-  lcd.print(F("Reading..."));
-#endif
-
+/////////////////////////////////
   ///initial run
+#if INTERNAL_SENSOR == BME280  
    for (unsigned char i = 0; i < (_SERIAL_MEASURE_QUANTITY); i++ )
    {
     meteo_sensor.takeForcedMeasurement();
-    delay(14);
+    delay(INTERNAL_SENSOR_FORCED_DELAY);
     _temp.set_new_value(meteo_sensor.readTemperature());
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
     _hum.set_new_value(meteo_sensor.readHumidity());
    }
      /// Working
    TaskManager::SetTask_(read_meteo,0);
+#endif
 }
 
 void loop()
