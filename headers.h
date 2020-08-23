@@ -17,9 +17,9 @@
 #endif
 
 #ifdef EXTERNAL_SENSOR
-#if EXTERNAL_SENSOR == DS18B20
-  #include <OneWire.h>
-#endif
+  #if EXTERNAL_SENSOR == DS18B20
+    #include <OneWire.h>
+  #endif
 #endif
 
 #include <TaskManager_.h>

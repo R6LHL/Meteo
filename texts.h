@@ -20,6 +20,11 @@
 
     #define TEXT_HUMIDITY_IS          (F("Humidity is "))
     #define TEXT_PERCENT_SIGN         (F(" %"))
+
+    #define TEXT_SYSTEM_OK            (F("SYSTEM OK "))
+    #define TEXT_SYSTEM_ERROR         (F("SYSTEM ERROR "))
+
+    #define TEXT_ROOM_TEMPERATURE     (F("Room temp-re "))
     
 	#endif
 	
