@@ -26,7 +26,7 @@
     byte ext_temp_data[BYTE_ITERATOR];
     byte HighByte;
     byte LowByte; 
-    double external_temperature;
+    float external_temperature;
     byte tempInt; 
     byte tempFloat;
     Serial_measure _temp_ext;
