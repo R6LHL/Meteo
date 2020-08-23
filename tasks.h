@@ -74,7 +74,7 @@
       tempInt = ((HighByte & 7)<<4)|(LowByte >> 4);
       tempFloat = (LowByte & 15);
 
-      external_temperature = tempInt + (tempFloat / 16);
+      external_temperature = (tempInt + (tempFloat / 16));
       _temp_ext.set_new_value(external_temperature);
   
 #endif
