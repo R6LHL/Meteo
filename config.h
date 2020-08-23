@@ -1,6 +1,6 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
-
+///////////////////////////////////////////////////////////////////////////////////
 #define T_TASK_QUEUE_SIZE  (5)	//for Task Manager
 #define CPU_CLOCK (16000000) 	// Hz
 
@@ -11,6 +11,10 @@ const unsigned char _SERIAL_MEASURE_QUANTITY = (10);
 const unsigned int _SENSOR_ASK_DELAY_MS = (6000);
 
 const unsigned char WAKE_BUTTON = (2);
+
+///////////////////////////////////////////////////////////////////////////////////
+#define TEXT_LANGUAGE (ENG)
+//#define TEXT_LANGUAGE (RUS)
 
 ////////////////////////////////////////////////////////////////////////////////////
 #define LCD_AVAILABLE (1)
@@ -44,6 +48,7 @@ const unsigned char WAKE_BUTTON = (2);
 #if INTERNAL_SENSOR == (BME280)
   const float SEALEVELPRESSURE_HPA = (1013.25); // for BME280
   const float LOCAL_27M_PRESSURE_HPA = (1010.01);
+  const unsigned char INTERNAL_SENSOR_FORCED_DELAY = 14; //ms
   
 #endif
 

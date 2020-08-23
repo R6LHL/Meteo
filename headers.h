@@ -24,5 +24,6 @@
 
 #include <TaskManager_.h>
 #include <Serial_measure.h>
+#include "texts.h"
 
 #endif
