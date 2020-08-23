@@ -3,13 +3,16 @@
 ///////////////////////////////////////////////////////
 /* SYSTEM ERROR CODES
  *  0 - system ok
- *  1 - extrenal sensor type is wrong
+ *  1 - external sensor type is wrong
  *  2 - external sensor CRC is wrong
  */
 ////////////////////////////////////////////////////////
 //variables
 #if INTERNAL_SENSOR == BME280
   Adafruit_BME280 meteo_sensor;
+  Serial_measure _temp_int;
+  Serial_measure _press;
+  Serial_measure _hum;
 #endif
 
 #if LCD_TYPE == LCD1602
@@ -20,13 +23,17 @@
 #if EXTERNAL_SENSOR == DS18B20
   OneWire ext_temp_sens(EXTERNAL_SENSOR_PIN);
   byte ext_temp_addr[8];
-  byte ext_temp_data[9];
+  byte ext_temp_data[BYTE_ITERATOR];
+  byte HighByte;
+  byte LowByte; 
+  double external_temperature;
+  byte tempInt; 
+  byte tempFloat;
+  Serial_measure _temp_ext;
 #endif
 #endif
 
-Serial_measure _temp;
-Serial_measure _press;
-Serial_measure _hum;
+
 
 byte system_error_code = 0;
 bool device_sleep = false;
@@ -146,7 +153,7 @@ void setup()
    {
     meteo_sensor.takeForcedMeasurement();
     delay(INTERNAL_SENSOR_FORCED_DELAY);
-    _temp.set_new_value(meteo_sensor.readTemperature());
+    _temp_int.set_new_value(meteo_sensor.readTemperature());
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
     _hum.set_new_value(meteo_sensor.readHumidity());
    }
