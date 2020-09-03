@@ -22,8 +22,15 @@
   #endif
 #endif
 
-#include <TaskManager_.h>
+#ifdef REAL_TIME_CLOCK
+  #if REAL_TIME_CLOCK == DS3231_
+    #include <DS3231.h>
+  #endif
+#endif
+
+#include "TaskManager.h"
 #include <Serial_measure.h>
 #include "texts.h"
+
 
 #endif

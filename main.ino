@@ -21,7 +21,7 @@
 
 #ifdef EXTERNAL_SENSOR
   #if EXTERNAL_SENSOR == DS18B20
-    OneWire ext_temp_sens(EXTERNAL_SENSOR_PIN);
+    OneWire ext_temp_sens(ONE_WIRE_PIN);
     byte ext_temp_addr[8];
     byte ext_temp_data[BYTE_ITERATOR];
     byte HighByte;
@@ -33,7 +33,14 @@
   #endif
 #endif
 
-
+#if REAL_TIME_CLOCK == DS3231_
+    RTClib Clock;
+    bool century;
+    bool am_pm;
+    bool tw;
+    DS3231 rtc;
+    //DateTime current_date;
+#endif
 
 byte system_error_code = 0;
 bool device_sleep = false;
@@ -53,6 +60,7 @@ ISR(TIMER2_OVF_vect)
   TaskManager::TimerTaskService_();
 }
 #else
+
 ISR(TIMER0_OVF_vect)
 {
   //Serial.println("Interrupt is working");
@@ -105,6 +113,7 @@ void setup()
 /////////////////////////////////
 #if UART_ENABLED == 1
   Serial.begin(UART_SPEED);
+  UCSR0B |= (1<<RXCIE0);
 #endif
 
 ////////////////////////////////
@@ -117,6 +126,7 @@ void setup()
 
 ////////////////////////////////
 #if INTERNAL_SENSOR == BME280
+    /*
     #if UART_ENABLED == 1
       Serial.println(TEXT_BME280_SELFTEST);
     #endif
@@ -124,6 +134,7 @@ void setup()
     #if LCD_AVAILABLE == 1
       lcd.print(TEXT_BME280_SELFTEST);
     #endif
+    */
      
     if (!meteo_sensor.begin(0x76)) 
     {                                // Инициализация датчика BME280
@@ -157,8 +168,14 @@ void setup()
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
     _hum.set_new_value(meteo_sensor.readHumidity());
    }
-     /// Working
+
+#if REAL_TIME_CLOCK == DS3231_
+  rtc.setClockMode(false); //24h format
+#endif
+
+/// Working
    TaskManager::SetTask_(read_meteo,0);
+   TaskManager::SetTask_(checkUART,0);
 #endif
 }
 

@@ -1,7 +1,7 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 ///////////////////////////////////////////////////////////////////////////////////
-#define T_TASK_QUEUE_SIZE  (5)	//for Task Manager
+#define T_TASK_QUEUE_SIZE  (6)	//for Task Manager
 #define CPU_CLOCK (16000000) 	// Hz
 
 const unsigned int _SCREEN_DELAY = (2000); //task manager delay in ms between screens
@@ -38,7 +38,7 @@ const unsigned char WAKE_BUTTON = (2);
 #define EXTERNAL_SENSOR (DS18B20) //comment this string if no external sensor present
 
 #if EXTERNAL_SENSOR == DS18B20
-  const unsigned char EXTERNAL_SENSOR_PIN = (3);
+  const unsigned char ONE_WIRE_PIN = (3);
   const unsigned int DS18B20_FORCED_DELAY =  (1000);
   #define BYTE_ITERATOR (9)
 #endif
@@ -52,6 +52,9 @@ const unsigned char WAKE_BUTTON = (2);
   const unsigned char INTERNAL_SENSOR_FORCED_DELAY = 14; //ms
   
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////
+#define REAL_TIME_CLOCK (DS3231_)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

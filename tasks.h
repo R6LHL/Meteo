@@ -13,6 +13,7 @@
   extern void print_meteo_Press(void);
   extern void print_meteo_Hum(void);
   extern void print_room_Temp(void);
+  extern void print_date_time(void);//!!!!!!!!!
   
   extern void compare_Temp(void);
   extern void compare_Press(void);
@@ -20,6 +21,7 @@
   
   extern void device_sleep_(void);
   extern void device_wake(void);
+  extern void check_UART(void); //!!!!!!!!!!!!!!
   
 /////////////////////////TASKS DEFINITIONS////////////////////////
   void read_meteo(void)
@@ -179,6 +181,7 @@
     
     TaskManager::SetTask_(print_meteo_Press,_SCREEN_DELAY);
   }
+ 
 //////PRINT Pressure/////////
   void  print_meteo_Press(void)
   {
@@ -360,8 +363,53 @@
     lcd.print(TEXT_CELSIUS_DEGREE);
 #endif
             
+    TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
+  }
+
+#if REAL_TIME_CLOCK == DS3231_
+
+  void print_date_time (void)
+  {
+    DateTime now = Clock.now();
+    #if UART_ENABLED == 1    
+      Serial.print(now.day(),DEC);
+      Serial.print(DATE_DEVIDER);
+      Serial.print(now.month(),DEC);
+      Serial.print(DATE_DEVIDER);
+      Serial.println(now.year(),DEC);
+      //Serial.print(SPACE_DEVIDER);
+      //Serial.println(now.dayOfTheWeek());
+
+      Serial.print(now.hour(),DEC);     
+      Serial.print(TIME_DEVIDER);
+      Serial.print(now.minute(),DEC);     
+      Serial.print(TIME_DEVIDER);
+      Serial.println(now.second(),DEC);
+    #endif
+
+    #if LCD_TYPE == LCD1602
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(now.day(), DEC);
+      lcd.print(DATE_DEVIDER);
+      lcd.print(now.month(),DEC);
+      lcd.print(DATE_DEVIDER);
+      lcd.print(now.year(),DEC);
+      //lcd.print(SPACE_DEVIDER);
+      //lcd.print(now.dayOfTheWeek());
+
+      lcd.setCursor(0,1);
+      lcd.print(now.hour(),DEC);     
+      lcd.print(TIME_DEVIDER);
+      lcd.print(now.minute(),DEC);     
+      lcd.print(TIME_DEVIDER);
+      lcd.print(now.second(),DEC);
+    #endif
+
     TaskManager::SetTask_(device_sleep_,_SCREEN_DELAY);
   }
+
+#endif
 
   void device_sleep_(void)
   {
@@ -393,6 +441,77 @@
   TaskManager::SetTask_(print_meteo_Temp,0);
  }
 
+ void checkUART(void)
+ {
+    if (Serial.available())
+    {
+    bool gotString = false;
+    char inChar;
+    char letter[5];
+    unsigned char first_digit;
+    unsigned char second_digit;
+    unsigned char i = 0;
+    //Read data from Serial buffer
+    while (gotString == false)
+    {
+        inChar = Serial.read();
+        letter[i] = inChar;
+        i++;
+        if (inChar == '+') 
+        {
+          gotString = true;
+        }
+    } 
+    
+    
+Serial.println(letter);
+    
+  //set hours
+   if (letter[0] == 'h')
+   {
+      first_digit = (byte)((letter[1] - 48) * 10);
+      second_digit =(byte)(letter[2] - 48);
+      rtc.setHour(first_digit + second_digit);
+   }
+  //set minutes
+  if (letter[0] == 'm')
+  {
+    first_digit = (byte)((letter[1] - 48) * 10);
+    second_digit =(byte)(letter[2] - 48);
+    rtc.setMinute(first_digit + second_digit);
+   }
+  //set seconds
+   if (letter[0] == 's')
+   {
+      first_digit = (byte)((letter[1] - 48) * 10);
+      second_digit =(byte)(letter[2] - 48);
+      rtc.setSecond(first_digit + second_digit);
+   }
+
+  //setDate
+   if (letter[0] == 'd')
+   {
+    first_digit = (byte)((letter[1] - 48) * 10);
+    second_digit =(byte)(letter[2] - 48);
+    rtc.setDate(first_digit + second_digit);
+   }
+  //set month
+   if (letter[0] == 'm' && letter[1] == 'o')
+   {  
+     first_digit = (byte)((letter[2] - 48) * 10);
+     second_digit =(byte)(letter[3] - 48);
+      rtc.setMonth(first_digit + second_digit);
+   }
+  //set year
+    if (letter[0] == 'y')
+   {
+    first_digit = (byte)((letter[1] - 48) * 10);
+    second_digit =(byte)(letter[2] - 48);
+    rtc.setYear(first_digit + second_digit);
+   }
+  }
+  TaskManager::SetTask_(checkUART,100);
+ }
  //////////////////////////////////////////////////////
 
 
