@@ -464,7 +464,7 @@
     } 
     
     
-Serial.println(letter);
+//Serial.println(letter);
     
   //set hours
    if (letter[0] == 'h')

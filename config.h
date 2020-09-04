@@ -1,7 +1,7 @@
 #ifndef __CONFIG_H_
 #define __CONFIG_H_
 ///////////////////////////////////////////////////////////////////////////////////
-#define T_TASK_QUEUE_SIZE  (6)	//for Task Manager
+#define T_TASK_QUEUE_SIZE  (10)	//for Task Manager
 #define CPU_CLOCK (16000000) 	// Hz
 
 const unsigned int _SCREEN_DELAY = (2000); //task manager delay in ms between screens

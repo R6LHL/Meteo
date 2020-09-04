@@ -1,0 +1,16 @@
+Serial_measure	KEYWORD1
+Value_state	KEYWORD1
+
+get_middle_value	KEYWORD2
+get_current_value	KEYWORD2
+get_previous_value	KEYWORD2
+get_value_state	KEYWORD2
+get_value_state_prev	KEYWORD2
+get_state_not_change_times	KEYWORD2
+
+set_new_value	KEYWORD2
+
+_SERIAL_MEASURE_QUANTITY	LITERAL1
+falling	LITERAL1
+stable LITERAL1
+rising LITERAL1
