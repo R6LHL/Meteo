@@ -35,6 +35,8 @@
     #define DATE_DEVIDER              (F("-\0"))
     #define TIME_DEVIDER              (F(":\0"))
     #define SPACE_DEVIDER             (F(" \0"))
+
+    #define TEXT_ZERO                 (F("0\0"))
     /*
     #define TEXT_SET_DATE             (F("setdate\0"))
     //const char TEXT_SET_DATE []PROGMEM = ("setdate \0");

@@ -10,6 +10,7 @@ class Serial_measure
   {
     iterator = 0;
     first_add = true;
+	carry_flag = false;
   }
 	
 	//void add_measure(T);
@@ -17,10 +18,11 @@ class Serial_measure
 	//T get_mid_value(void);
 	//T get_delta(void);
 	unsigned char get_iterator(void) {return iterator;}
+	
 	T get_measure(unsigned char i){return measures[i];}
-  bool get_carry_flag(void){return carry_flag;}
-  void set_carry_flag(bool f){carry_flag = f;}
-  T get_delta(void){return delta;}
+	bool get_carry_flag(void){return carry_flag;}
+	void set_carry_flag(bool f){carry_flag = f;}
+	T get_delta(void){return delta;}
 /*
 void add_measure(T m)
 {
@@ -55,35 +57,37 @@ void mov_measure(T m, unsigned char i)
 
   if (i >= (E))
   {
-    carry_flag == true;
-    iterator = 0;
+    carry_flag = true;
+	iterator = 0;
   }
   else
   {
     measures[i] = m;
     iterator = i;
+	carry_flag = false;
   }
-
+  
   if (first_add == true)
   {
-    for (byte i = 0; i < E; i++) 
-    {
-      measures[i] = m;
-      first_add = false;
-    }
+		for (byte i = 0; i < E; i++) 
+		{
+				measures[i] = m;
+		}
+		first_add = false;
   }
+  
   delta = measures[iterator] - measures[0];
 }
 
 T get_mid_value(void)
 {
   T sum;
-  if (iterator == 0) return 0;
-  for (unsigned char i = 0; i < iterator; i++)
+  
+  for (unsigned char i = 0; i < E; i++)
   {
     sum += measures[i];
   }
-   return  (sum / iterator);
+   return  (sum / E);
 }
 
 

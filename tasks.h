@@ -110,7 +110,7 @@ void collect_int_temp(void)
    ////STATISTIC
    //DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
-      inner_temp0_10.mov_measure((int)meteo_sensor.readTemperature(), iteration);
+      inner_temp0_10.mov_measure(meteo_sensor.readTemperature(), iteration);
       iteration = now.minute()/10;
       inner_temp10_60.mov_measure(inner_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
@@ -169,7 +169,7 @@ void collect_humidity(void)
  
     //strcpy(text_buffer,(char*)pgm_read_word(TEXT_TEMPERATURE_IS));
     Serial.print(TEXT_TEMPERATURE_IS);
-    Serial.print((unsigned char)external_temperature);
+    Serial.print(external_temperature);
     Serial.println(TEXT_CELSIUS_DEGREE);
     //debug
     Serial.println(ext_temp0_10.get_iterator());
@@ -187,7 +187,7 @@ void collect_humidity(void)
     //strcpy(text_buffer,(char*)pgm_read_word(TEXT_TEMPERATURE_IS));
     lcd.print(TEXT_TEMPERATURE_IS);
     lcd.setCursor(0,1);
-    lcd.print((unsigned char)external_temperature);
+    lcd.print(external_temperature);
     lcd.print(TEXT_CELSIUS_DEGREE);
 #endif
             
@@ -200,14 +200,14 @@ void collect_humidity(void)
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_D10M);
-    lcd.print((unsigned char)ext_temp0_10.get_delta());
+    lcd.print(ext_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
     lcd.setCursor(9,0);
     lcd.print(TEXT_D1H);
-    lcd.print((unsigned char)ext_temp10_60.get_delta());
+    lcd.print(ext_temp10_60.get_delta());
     lcd.setCursor(0,1);
     lcd.print(TEXT_D24H);
-    lcd.print((unsigned char)ext_temp60_1440.get_delta());
+    lcd.print(ext_temp60_1440.get_delta());
     lcd.setCursor(9,1);
 #endif
 
@@ -329,7 +329,7 @@ void print_room_Temp(void)
   {
     #if UART_ENABLED == 1    
     Serial.print(TEXT_ROOM_TEMPERATURE);
-    Serial.print((int)meteo_sensor.readTemperature());
+    Serial.print(meteo_sensor.readTemperature());
     //Serial.print(external_temperature);         //DEBUG
     Serial.println(TEXT_CELSIUS_DEGREE  );
 #endif    
@@ -339,7 +339,7 @@ void print_room_Temp(void)
     lcd.setCursor(0,0);
     lcd.print(TEXT_ROOM_TEMPERATURE);
     lcd.setCursor(0,1);
-    lcd.print((int)meteo_sensor.readTemperature());
+    lcd.print(meteo_sensor.readTemperature());
     //lcd.print(external_temperature);            //DEBUG
     lcd.print(TEXT_CELSIUS_DEGREE  );
 #endif
@@ -382,20 +382,20 @@ void compare_room_temp(void)
   {
     DateTime now = Clock.now();
     #if UART_ENABLED == 1    
-      if (now.day()<10){Serial.print('0');}
+      if (now.day()<10){Serial.print(TEXT_ZERO);}
       Serial.print(now.day(),DEC);
       Serial.print(DATE_DEVIDER);
-      if (now.month()<10){Serial.print('0');}
+      if (now.month()<10){Serial.print(TEXT_ZERO);}
       Serial.print(now.month(),DEC);
       Serial.print(DATE_DEVIDER);
       Serial.println(now.year(),DEC);
       //Serial.print(SPACE_DEVIDER);
       //Serial.println(now.dayOfTheWeek());
 
-      if (now.hour()<10){Serial.print('0');}
+      if (now.hour()<10){Serial.print(TEXT_ZERO);}
       Serial.print(now.hour(),DEC);     
       Serial.print(TIME_DEVIDER);
-      if (now.minute()<10){Serial.print('0');}
+      if (now.minute()<10){Serial.print(TEXT_ZERO);}
       Serial.println(now.minute(),DEC);     
       //Serial.print(TIME_DEVIDER);
       //Serial.println(now.second(),DEC);
@@ -404,8 +404,10 @@ void compare_room_temp(void)
     #if LCD_TYPE == LCD1602
       lcd.clear();
       lcd.setCursor(0,0);
+      if (now.day()<10){lcd.print(TEXT_ZERO);}
       lcd.print(now.day(), DEC);
       lcd.print(DATE_DEVIDER);
+      if (now.month()<10){lcd.print(TEXT_ZERO);}
       lcd.print(now.month(),DEC);
       lcd.print(DATE_DEVIDER);
       lcd.print(now.year(),DEC);
@@ -413,8 +415,10 @@ void compare_room_temp(void)
       //lcd.print(now.dayOfTheWeek());
 
       lcd.setCursor(0,1);
+      if (now.hour()<10){lcd.print(TEXT_ZERO);}
       lcd.print(now.hour(),DEC);     
       lcd.print(TIME_DEVIDER);
+      if (now.minute()<10){lcd.print(TEXT_ZERO);}
       lcd.print(now.minute(),DEC);     
       //lcd.print(TIME_DEVIDER);
       //lcd.print(now.second(),DEC);

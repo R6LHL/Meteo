@@ -37,10 +37,16 @@
   typedef Serial_measure <float,24> Serial_measure_f60_1440;
   typedef Serial_measure <float,7> Serial_measure_f1440_10080;
 */
-  typedef Serial_measure <int, 10> Serial_measure_i0_10;
-  typedef Serial_measure <int, 6> Serial_measure_i10_60;
-  typedef Serial_measure <int, 24> Serial_measure_i60_1440;
-  typedef Serial_measure <int, 7> Serial_measure_i1440_10080;
+  typedef Serial_measure <float, 10> Serial_measure_i0_10;
+  typedef Serial_measure <float, 6> Serial_measure_i10_60;
+  typedef Serial_measure <float, 24> Serial_measure_i60_1440;
+  typedef Serial_measure <float, 7> Serial_measure_i1440_10080;
+/*
+  typedef Serial_measure <float, 10> Serial_measure_i0_10;
+  typedef Serial_measure <float, 6> Serial_measure_i10_60;
+  typedef Serial_measure <float, 24> Serial_measure_i60_1440;
+  typedef Serial_measure <float, 7> Serial_measure_i1440_10080;
+*/
 /*
   typedef Serial_measure <char, 10> Serial_measure_c0_10;
   typedef Serial_measure <char, 6> Serial_measure_c10_60;
