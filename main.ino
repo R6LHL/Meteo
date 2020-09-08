@@ -133,6 +133,8 @@ void setup()
   pinMode(WAKE_BUTTON,INPUT);
   digitalWrite(WAKE_BUTTON, HIGH);
 
+  analogReference(EXTERNAL);
+
 /////////////////////////////////
 #if UART_ENABLED == 1
   Serial.begin(UART_SPEED);

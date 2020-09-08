@@ -25,6 +25,7 @@
   extern void compare_humidity(void);
   extern void compare_room_temp(void);
   
+  extern void print_supply_voltage(void);
    
   extern void device_sleep_(void);
   extern void device_wake(void);
@@ -33,7 +34,7 @@
 /////////////////////////TASKS DEFINITIONS////////////////////////
   void read_meteo(void)
   {
-    now = Clock.now();
+    //DateTime now = Clock(now);
 #if EXTERNAL_SENSOR == DS18B20
     noInterrupts();
     ext_temp_sens.reset();
@@ -79,7 +80,7 @@
       external_temperature = (tempInt + (tempFloat / 16));
       
  ////STATISTIC
- 
+      DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       ext_temp0_10.mov_measure(external_temperature, iteration);
       iteration = now.minute()/10;
@@ -108,7 +109,7 @@
 void collect_int_temp(void)
 {
    ////STATISTIC
-   //DateTime now = Clock.now();
+   DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       inner_temp0_10.mov_measure(meteo_sensor.readTemperature(), iteration);
       iteration = now.minute()/10;
@@ -123,7 +124,7 @@ void collect_int_temp(void)
 void collect_pressure(void)
 {
      ////STATISTIC
-     //DateTime now = Clock.now();
+    DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       pressure0_10.mov_measure((meteo_sensor.readPressure()/100.0F), iteration);
       iteration = now.minute()/10;
@@ -138,7 +139,7 @@ void collect_pressure(void)
 void collect_humidity(void)
 {
   ////STATISTIC
-      //DateTime now = Clock.now();
+     DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       humidity0_10.mov_measure(meteo_sensor.readHumidity(), iteration);
       iteration = now.minute()/10;
@@ -166,7 +167,7 @@ void collect_humidity(void)
   void print_meteo_Temp(void)
   {
 #if UART_ENABLED == 1  
- 
+    DateTime now = Clock.now();
     //strcpy(text_buffer,(char*)pgm_read_word(TEXT_TEMPERATURE_IS));
     Serial.print(TEXT_TEMPERATURE_IS);
     Serial.print(external_temperature);
@@ -196,7 +197,9 @@ void collect_humidity(void)
 
   void compare_Temp(void)
   {
-#if LCD_TYPE == LCD1602    
+#if LCD_TYPE == LCD1602 
+
+   //
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_D10M);
@@ -424,10 +427,35 @@ void compare_room_temp(void)
       //lcd.print(now.second(),DEC);
     #endif
 
-    TaskManager::SetTask_(device_sleep_,_SCREEN_DELAY);
+    TaskManager::SetTask_(print_supply_voltage,_SCREEN_DELAY);
   }
 
 #endif
+
+void print_supply_voltage(void)
+{
+    #if LCD_TYPE == LCD1602
+    float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    voltage += CALIBRATION_ADDITIVE;
+    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_BATT_VOLTAGE);
+    lcd.print(voltage);
+    lcd.print(TEXT_VOLT_SIGN);
+    #endif
+
+    #if UART_ENABLED == 1
+
+    Serial.print(TEXT_BATT_VOLTAGE);
+    Serial.print(voltage);
+    Serial.println(TEXT_VOLT_SIGN);
+    
+    #endif
+
+   TaskManager::SetTask_(device_sleep_,_SCREEN_DELAY); 
+}
 
   void device_sleep_(void)
   {
