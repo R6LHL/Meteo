@@ -10,9 +10,23 @@
 //variables
 #if INTERNAL_SENSOR == BME280
   Adafruit_BME280 meteo_sensor;
-  Serial_measure _temp_int;
-  Serial_measure _press;
-  Serial_measure _hum;
+  
+  Serial_measure_i0_10        inner_temp0_10;
+  Serial_measure_i10_60       inner_temp10_60;
+  Serial_measure_i60_1440     inner_temp60_1440;
+  Serial_measure_i1440_10080  inner_temp1440_10080;
+  
+  Serial_measure_i0_10        pressure0_10;
+  Serial_measure_i10_60       pressure10_60;
+  Serial_measure_i60_1440     pressure60_1440;
+  Serial_measure_i1440_10080  pressure1440_10080;
+
+  Serial_measure_i0_10        humidity0_10;
+  Serial_measure_i10_60       humidity10_60;
+  Serial_measure_i60_1440     humidity60_1440;
+  Serial_measure_i1440_10080  humidity1440_10080;
+  
+    
 #endif
 
 #if LCD_TYPE == LCD1602
@@ -20,6 +34,7 @@
 #endif
 
 #ifdef EXTERNAL_SENSOR
+  
   #if EXTERNAL_SENSOR == DS18B20
     OneWire ext_temp_sens(ONE_WIRE_PIN);
     byte ext_temp_addr[8];
@@ -29,21 +44,29 @@
     float external_temperature;
     byte tempInt; 
     byte tempFloat;
-    Serial_measure _temp_ext;
+
+    Serial_measure_i0_10        ext_temp0_10;
+    Serial_measure_i10_60       ext_temp10_60;
+    Serial_measure_i60_1440     ext_temp60_1440;
+    Serial_measure_i1440_10080  ext_temp1440_10080;
+    
   #endif
 #endif
 
 #if REAL_TIME_CLOCK == DS3231_
-    RTClib Clock;
+    volatile RTClib Clock;
     bool century;
     bool am_pm;
     bool tw;
-    DS3231 rtc;
+    volatile DS3231 rtc;
+    volatile DateTime now;
     //DateTime current_date;
 #endif
 
 byte system_error_code = 0;
 bool device_sleep = false;
+bool first_measure = true;
+char text_buffer[16];
 
 ///////////////////////////////////////////////////////
 //Tasks
@@ -159,6 +182,7 @@ void setup()
 
 /////////////////////////////////
   ///initial run
+/*  
 #if INTERNAL_SENSOR == BME280  
    for (unsigned char i = 0; i < (_SERIAL_MEASURE_QUANTITY); i++ )
    {
@@ -168,7 +192,7 @@ void setup()
     _press.set_new_value(meteo_sensor.readPressure()/100.0F);
     _hum.set_new_value(meteo_sensor.readHumidity());
    }
-
+*/
 #if REAL_TIME_CLOCK == DS3231_
   rtc.setClockMode(false); //24h format
 #endif
@@ -176,7 +200,7 @@ void setup()
 /// Working
    TaskManager::SetTask_(read_meteo,0);
    TaskManager::SetTask_(checkUART,0);
-#endif
+//#endif
 }
 
 void loop()

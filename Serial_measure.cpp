@@ -2,109 +2,59 @@
 
 Serial_measure::Serial_measure(void)
 {
-	number_of_measure = 0;
-	value_state = Value_state::not_defined;
-	value_state_prev = Value_state::not_defined;
-	is_first_start = true;
-}
-///interface
-int Serial_measure::get_middle_value(void)
-{
-	//calc_middle_value();	
-	return middle_value;
+	iterator = 0;
+	first_add = true;
 }
 
-float Serial_measure::get_current_value(void)
+void Serial_measure::add_measure(T m)
 {
-	return measure_array[number_of_measure];
-}
-
-float Serial_measure::get_previous_value(void)
-{
-	return measure_array[number_of_measure - 1];
-}
-
-char Serial_measure::get_value_state(void)
-{
-	return value_state;
-}
-
-char Serial_measure::get_value_state_prev(void)
-{
-	return value_state_prev;
-}
-
-void Serial_measure::set_new_value(float v)
-{
-	if (is_first_start == true)
+	if (first_add == true)
 	{
-		for (unsigned char i = 0; i < (_SERIAL_MEASURE_QUANTITY-1); ++i)
+		for (unsigned char i = 0; i < E; i++)
 		{
-			measure_array[i] = ceil(v);
+			measures[i] = m;
 		}
-			
-		is_first_start = false;
-		calc_middle_value();
-		value_state = Value_state::not_defined;
-		value_state_prev = Value_state::not_defined;
-		number_of_measure = 0;
-		state_not_changing_times = 0;
-		calc_middle_value();
-		return;
+		first_add = false;
 	}
 	
-	measure_array[number_of_measure] = ceil(v);
+	measures[iterator] = m;
+	delta = measures[iterator] - measures[0];
+	iterator++;
 	
-	if (number_of_measure < (_SERIAL_MEASURE_QUANTITY-1) )
+	if (iterator == (E-1)) 
 	{
-		number_of_measure++;
+		T last_value = measures[iterator];
+		iterator = 0;
+		first_add = true;
+		
+		for (unsigned char i = 1; i < (E-1); i++)
+		{
+			measures[i] = last_value;
+		}
 	}
+}
+
+void Serial_measure::mov_measure(T m, unsigned char i)
+{
+	if (i >= (E-1)) return;
 	else
 	{
-		number_of_measure = 0;
-		calc_middle_value();
+		measures[i] = m;
 	}
 }
 
-void Serial_measure::calc_middle_value(void)
+T Serial_measure::get_mid_value(void)
 {
-	middle_value_prev = middle_value;
-	
-	for (unsigned char i = 0; i < (_SERIAL_MEASURE_QUANTITY - 1); ++i)
+	T sum;
+	if (iterator == 0) return 0;
+	for (i = 0; i < iterator; i++)
 	{
-		middle_value += measure_array[i];
+		sum += measures[i];
 	}
-	
-	middle_value = (middle_value)/_SERIAL_MEASURE_QUANTITY;
-		
-	if (middle_value < middle_value_prev) 
-	{
-		value_state = Value_state::falling;
-	}
-	else if (middle_value > middle_value_prev) 
-	{
-		
-		value_state = Value_state::rising;
-	}
-	else 
-	{
-		value_state = Value_state::stable;
-	}
-	
-	is_state_changed();
-	value_state_prev = value_state;
+	 return  (sum / iterator);
 }
 
-int Serial_measure::get_state_not_change_times(void)
+T Serial_measure::get_delta(void)
 {
-	return state_not_changing_times;
-}
-
-void Serial_measure::is_state_changed(void)
-{
-	if (value_state != value_state_prev)
-	{
-		state_not_changing_times = 0;
-	}
-	else state_not_changing_times++;
+	return delta;
 }

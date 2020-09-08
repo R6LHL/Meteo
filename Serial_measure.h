@@ -1,52 +1,105 @@
 #ifndef _SERIAL_MEASURE_H
 #define _SERIAL_MEASURE_H
 
-#ifndef   _SERIAL_MEASURE_QUANTITY 
-#define   _SERIAL_MEASURE_QUANTITY  (10)
-#endif
-
-#include <math.h>
-
+template <typename T, char E>
 class Serial_measure
 {
 	public:
 	
-	Serial_measure(void);
+	Serial_measure(void)
+  {
+    iterator = 0;
+    first_add = true;
+	carry_flag = false;
+  }
 	
-	int get_middle_value(void);
-	float get_current_value(void);
-	float get_previous_value(void);
-	char get_value_state(void);
-	char get_value_state_prev(void);
-	int get_state_not_change_times(void);
+	//void add_measure(T);
+	//void mov_measure(T, unsigned char);
+	//T get_mid_value(void);
+	//T get_delta(void);
+	unsigned char get_iterator(void) {return iterator;}
 	
-	void set_new_value(float);
-	
-	enum Value_state
-	{
-	 falling = -1,
-	 stable = 0,
-	 rising = 1,
-	 not_defined = 2,
-	};
-	
+	T get_measure(unsigned char i){return measures[i];}
+	bool get_carry_flag(void){return carry_flag;}
+	void set_carry_flag(bool f){carry_flag = f;}
+	T get_delta(void){return delta;}
+/*
+void add_measure(T m)
+{
+  if (first_add == true)
+  {
+    for (unsigned char i = 0; i < E; i++)
+    {
+      measures[i] = m;
+    }
+    first_add = false;
+  }
+  
+  measures[iterator] = m;
+  delta = measures[iterator] - measures[0];
+  iterator++;
+  
+  if (iterator == (E-1)) 
+  {
+    T last_value = measures[iterator];
+    iterator = 0;
+    first_add = true;
+    
+    for (unsigned char i = 1; i < (E-1); i++)
+    {
+      measures[i] = last_value;
+    }
+  }
+}
+*/
+void mov_measure(T m, unsigned char i)
+{
+
+  if (i >= (E))
+  {
+    carry_flag = true;
+	iterator = 0;
+  }
+  else
+  {
+    measures[i] = m;
+    iterator = i;
+	carry_flag = false;
+  }
+  
+  if (first_add == true)
+  {
+		for (byte i = 0; i < E; i++) 
+		{
+				measures[i] = m;
+		}
+		first_add = false;
+  }
+  
+  delta = measures[iterator] - measures[0];
+}
+
+T get_mid_value(void)
+{
+  T sum;
+  
+  for (unsigned char i = 0; i < E; i++)
+  {
+    sum += measures[i];
+  }
+   return  (sum / E);
+}
+
+
 	
 	private:
 	
-	float measure_array[_SERIAL_MEASURE_QUANTITY];
-	unsigned char number_of_measure;
-	char value_state;
-	char value_state_prev;
-	
-	bool is_first_start;
-	
-	int state_not_changing_times;
-	
-	float middle_value;
-	float middle_value_prev;
-	
-	void calc_middle_value(void);
-	void is_state_changed(void);
+	T measures[E];
+	unsigned char iterator;
+	T delta;
+	bool first_add;
+  bool carry_flag;
+  
 };
 
 #endif
