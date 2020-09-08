@@ -49,13 +49,20 @@ const unsigned char WAKE_BUTTON = (2);
 #if INTERNAL_SENSOR == (BME280)
   const float SEALEVELPRESSURE_HPA = (1013.25); // for BME280
   const float LOCAL_27M_PRESSURE_HPA = (1010.01);
-  const unsigned char INTERNAL_SENSOR_FORCED_DELAY = 14; //ms
-  
+  const unsigned char INTERNAL_SENSOR_FORCED_DELAY = 14; //ms 
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #define REAL_TIME_CLOCK (DS3231_)
 
 ///////////////////////////////////////////////////////////////////////////////////////
+#define POWER_SUPPLY (AUTONOMOUS)
 
+#if POWER_SUPPLY == AUTONOMOUS
+  #define AREF_VOLTAGE  (5.0)
+  #define SUPPLY_VOLTAGE_ANALOG_PIN (1)
+  #define BATT_VOLTAGE_DIVIDER (1.0)
+  #define CALIBRATION_ADDITIVE (0)
 #endif
+
+#endif //_CONFIG_H

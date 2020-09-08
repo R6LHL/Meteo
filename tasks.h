@@ -14,6 +14,10 @@
   extern void print_meteo_Hum(void);
   extern void print_room_Temp(void);
   extern void print_date_time(void);//!!!!!!!!!
+
+  extern void led_power_high(void);
+  extern void led_power_low(void);
+  extern void batt_control(void);
   
   extern void collect_ext_temp(void);
   extern void collect_int_temp(void);
@@ -21,10 +25,18 @@
   extern void collect_humidity(void);
 
   extern void compare_Temp(void);
-  extern void compare_pressure(void);
-  extern void compare_humidity(void);
-  extern void compare_room_temp(void);
+  extern void compare_Temp1(void);
   
+  extern void compare_pressure(void);
+  extern void compare_pressure1(void);
+  
+  extern void compare_humidity(void);
+  extern void compare_humidity1(void);
+  
+  extern void compare_room_temp(void);
+  extern void compare_room_temp1(void);
+  
+  extern void print_supply_voltage(void);
    
   extern void device_sleep_(void);
   extern void device_wake(void);
@@ -33,7 +45,7 @@
 /////////////////////////TASKS DEFINITIONS////////////////////////
   void read_meteo(void)
   {
-    now = Clock.now();
+    //DateTime now = Clock(now);
 #if EXTERNAL_SENSOR == DS18B20
     noInterrupts();
     ext_temp_sens.reset();
@@ -44,7 +56,8 @@
 
 #if INTERNAL_SENSOR == BME280
     meteo_sensor.takeForcedMeasurement();
-#endif
+#endif  
+
     TaskManager::SetTask_(collect_ext_temp, 750);
   }
   
@@ -79,22 +92,15 @@
       external_temperature = (tempInt + (tempFloat / 16));
       
  ////STATISTIC
- 
+      DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       ext_temp0_10.mov_measure(external_temperature, iteration);
       iteration = now.minute()/10;
       ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
       ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
-      /*
-      if (ext_temp60_1440.get_carry_flag()== true)
-      {
-        ext_temp60_1440.set_carry_flag(false);
-        iteration = now.day();
-        ext_temp60_1440.mov_measure(ext60_1440.get_mid_value(), iteration);
-      }
-*/
-  
+      iteration = now.day();
+      ext_temp1440_10080.mov_measure(ext_temp60_1440.get_mid_value(), iteration);
 #endif
 
 #if INTERNAL_SENSOR == BME280
@@ -108,13 +114,15 @@
 void collect_int_temp(void)
 {
    ////STATISTIC
-   //DateTime now = Clock.now();
+   DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       inner_temp0_10.mov_measure(meteo_sensor.readTemperature(), iteration);
       iteration = now.minute()/10;
       inner_temp10_60.mov_measure(inner_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
       inner_temp60_1440.mov_measure(inner_temp10_60.get_mid_value(), iteration);
+      iteration = now.day();
+      inner_temp1440_10080.mov_measure(inner_temp60_1440.get_mid_value(), iteration);
      
   
   TaskManager::SetTask_(collect_pressure,0);
@@ -123,13 +131,15 @@ void collect_int_temp(void)
 void collect_pressure(void)
 {
      ////STATISTIC
-     //DateTime now = Clock.now();
+    DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       pressure0_10.mov_measure((meteo_sensor.readPressure()/100.0F), iteration);
       iteration = now.minute()/10;
       pressure10_60.mov_measure(pressure0_10.get_mid_value(), iteration);
       iteration = now.hour(); 
       pressure60_1440.mov_measure(pressure10_60.get_mid_value(), iteration);
+      iteration = now.day();
+      pressure1440_10080.mov_measure(pressure60_1440.get_mid_value(), iteration);
       
   
   TaskManager::SetTask_(collect_humidity,0);
@@ -138,15 +148,16 @@ void collect_pressure(void)
 void collect_humidity(void)
 {
   ////STATISTIC
-      //DateTime now = Clock.now();
+     DateTime now = Clock.now();
       volatile unsigned char iteration = (now.minute()%10);
       humidity0_10.mov_measure(meteo_sensor.readHumidity(), iteration);
       iteration = now.minute()/10;
       humidity10_60.mov_measure(humidity0_10.get_mid_value(), iteration);   
       iteration = now.hour();;
       humidity60_1440.mov_measure(humidity10_60.get_mid_value(), iteration);
+      iteration = now.day();
+      humidity1440_10080.mov_measure(humidity60_1440.get_mid_value(), iteration);
       
-  
   TaskManager::SetTask_(wake_or_sleep,0);
 }
 #endif
@@ -166,18 +177,18 @@ void collect_humidity(void)
   void print_meteo_Temp(void)
   {
 #if UART_ENABLED == 1  
- 
+    DateTime now = Clock.now();
     //strcpy(text_buffer,(char*)pgm_read_word(TEXT_TEMPERATURE_IS));
     Serial.print(TEXT_TEMPERATURE_IS);
     Serial.print(external_temperature);
     Serial.println(TEXT_CELSIUS_DEGREE);
     //debug
-    Serial.println(ext_temp0_10.get_iterator());
-    Serial.println(now.minute()%10);
-    Serial.println(ext_temp10_60.get_iterator());
-    Serial.println(now.minute()/10);
-    Serial.println(ext_temp60_1440.get_iterator());
-    Serial.println(now.hour());
+    //Serial.println(ext_temp0_10.get_iterator());
+    //Serial.println(now.minute()%10);
+    //Serial.println(ext_temp10_60.get_iterator());
+    //Serial.println(now.minute()/10);
+    //Serial.println(ext_temp60_1440.get_iterator());
+    //Serial.println(now.hour());
     //end debug
 #endif    
 
@@ -196,19 +207,17 @@ void collect_humidity(void)
 
   void compare_Temp(void)
   {
-#if LCD_TYPE == LCD1602    
+#if LCD_TYPE == LCD1602 
+
+   //
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_D10M);
     lcd.print(ext_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(ext_temp10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(ext_temp60_1440.get_delta());
-    lcd.setCursor(9,1);
 #endif
 
 #if UART_ENABLED == 1  
@@ -216,12 +225,32 @@ void collect_humidity(void)
     Serial.println(ext_temp0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(ext_temp10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(ext_temp60_1440.get_delta());
 #endif
     
-    TaskManager::SetTask_(print_meteo_Press,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_Temp1,_SCREEN_DELAY);
   }
+
+void compare_Temp1(void)
+{
+  #if LCD_TYPE == LCD1602
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(TEXT_D24H);
+  lcd.print(ext_temp60_1440.get_delta());
+  lcd.setCursor(0,1);
+  lcd.print(TEXT_D7D);
+  lcd.print(ext_temp1440_10080.get_delta());
+  #endif
+
+  #if UART_ENABLED == 1
+  Serial.print(TEXT_D24H);
+  Serial.println(ext_temp60_1440.get_delta());
+  Serial.print(TEXT_D7D);
+  Serial.println(ext_temp1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_meteo_Press,_SCREEN_DELAY);
+}
  
 //////PRINT Pressure/////////
   void  print_meteo_Press(void)
@@ -253,13 +282,9 @@ void compare_pressure(void)
     lcd.print(TEXT_D10M);
     lcd.print(pressure0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(pressure10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(pressure60_1440.get_delta());
-    lcd.setCursor(9,1);
 #endif
 
 #if UART_ENABLED == 1  
@@ -267,12 +292,33 @@ void compare_pressure(void)
     Serial.println(pressure0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(pressure10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(pressure60_1440.get_delta());
 #endif
 
-    TaskManager::SetTask_(print_meteo_Hum,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_pressure1,_SCREEN_DELAY);
 }
+
+void compare_pressure1(void)  
+{
+  #if LCD_TYPE == LCD1602    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_D24H);
+    lcd.print(pressure60_1440.get_delta());
+    lcd.setCursor(0,1);
+    lcd.print(TEXT_D7D);
+    lcd.print(pressure1440_10080.get_delta());
+  #endif
+
+  #if UART_ENABLED == 1  
+    Serial.print(TEXT_D24H);
+    Serial.println(pressure60_1440.get_delta());
+    Serial.print(TEXT_D7D);
+    Serial.println(pressure1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_meteo_Hum,_SCREEN_DELAY);
+}
+
 //////PRINT humidity/////////
 void  print_meteo_Hum(void)
   {
@@ -298,19 +344,15 @@ void  print_meteo_Hum(void)
 
 void compare_humidity(void)  
 {
-     #if LCD_TYPE == LCD1602    
+    #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_D10M);
     lcd.print(humidity0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(humidity10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(humidity60_1440.get_delta());
-    lcd.setCursor(9,1);
 #endif
 
 #if UART_ENABLED == 1  
@@ -318,11 +360,31 @@ void compare_humidity(void)
     Serial.println(humidity0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(humidity10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(humidity60_1440.get_delta());
 #endif
     
-    TaskManager::SetTask_(print_room_Temp,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_humidity1,_SCREEN_DELAY);
+}
+
+void compare_humidity1(void)
+{
+  #if LCD_TYPE == LCD1602    
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(TEXT_D24H);
+  lcd.print(humidity60_1440.get_delta());
+  lcd.setCursor(0,1);
+  lcd.print(TEXT_D7D);
+  lcd.print(humidity1440_10080.get_delta());
+  #endif
+
+  #if UART_ENABLED == 1  
+    Serial.print(TEXT_D24H);
+    Serial.println(humidity60_1440.get_delta());
+    Serial.print(TEXT_D7D);
+    Serial.println(humidity1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_room_Temp,_SCREEN_DELAY);
 }
 
 void print_room_Temp(void)
@@ -355,13 +417,11 @@ void compare_room_temp(void)
     lcd.print(TEXT_D10M);
     lcd.print(inner_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(inner_temp10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(inner_temp60_1440.get_delta());
-    lcd.setCursor(9,1);
+    
+    
 #endif
 
 #if UART_ENABLED == 1  
@@ -369,11 +429,32 @@ void compare_room_temp(void)
     Serial.println(inner_temp0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(inner_temp10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(inner_temp60_1440.get_delta());
 #endif
             
-    TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_room_temp1,_SCREEN_DELAY);
+}
+
+void compare_room_temp1(void)
+{
+  #if LCD_TYPE == LCD1602    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_D24H);
+    lcd.print(inner_temp60_1440.get_delta());
+    lcd.setCursor(0,1);
+    lcd.print(TEXT_D7D);
+    lcd.print(inner_temp1440_10080.get_delta());
+    
+  #endif
+
+  #if UART_ENABLED == 1  
+    Serial.print(TEXT_D24H);
+    Serial.println(inner_temp60_1440.get_delta());
+    Serial.print(TEXT_D7D);
+    Serial.println(inner_temp1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
 }
 
 #if REAL_TIME_CLOCK == DS3231_
@@ -424,10 +505,35 @@ void compare_room_temp(void)
       //lcd.print(now.second(),DEC);
     #endif
 
-    TaskManager::SetTask_(device_sleep_,_SCREEN_DELAY);
+    TaskManager::SetTask_(print_supply_voltage,_SCREEN_DELAY);
   }
 
 #endif
+
+void print_supply_voltage(void)
+{
+    #if LCD_TYPE == LCD1602
+    float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    voltage += CALIBRATION_ADDITIVE;
+    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_BATT_VOLTAGE);
+    lcd.print(voltage);
+    lcd.print(TEXT_VOLT_SIGN);
+    #endif
+
+    #if UART_ENABLED == 1
+
+    Serial.print(TEXT_BATT_VOLTAGE);
+    Serial.print(voltage);
+    Serial.println(TEXT_VOLT_SIGN);
+    
+    #endif
+
+   TaskManager::SetTask_(device_sleep_,_SCREEN_DELAY); 
+}
 
   void device_sleep_(void)
   {
@@ -529,6 +635,36 @@ void compare_room_temp(void)
    }
   }
   TaskManager::SetTask_(checkUART,100);
+ }
+
+ void led_power_high(void)
+ {
+  digitalWrite(LED_BUILTIN, HIGH);
+  TaskManager::SetTask_(led_power_high,3000);
+ }
+
+ void led_power_low(void)
+ {
+  digitalWrite(LED_BUILTIN, LOW);
+  TaskManager::SetTask_(led_power_low,3000);
+ }
+
+ void batt_control(void)
+ {
+  float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    voltage += CALIBRATION_ADDITIVE;
+
+    if(voltage <= 3.8){TaskManager::SetTask_(led_power_high, 0);}
+    else if(voltage > 3.8)
+    {
+      TaskManager::DeleteTask_(led_power_high);
+      TaskManager::DeleteTask_(led_power_low);
+    }
+    if (voltage > 4.1){digitalWrite(LED_BUILTIN, HIGH);}
+    else if (voltage <= 4.1){digitalWrite(LED_BUILTIN, LOW);}
+
+    TaskManager::SetTask_(batt_control, 60000);
  }
  //////////////////////////////////////////////////////
 

@@ -37,6 +37,9 @@
     #define SPACE_DEVIDER             (F(" \0"))
 
     #define TEXT_ZERO                 (F("0\0"))
+
+    #define TEXT_BATT_VOLTAGE         (F("BATTERY: \0"))
+    #define TEXT_VOLT_SIGN            (F("V\0"))
     /*
     #define TEXT_SET_DATE             (F("setdate\0"))
     //const char TEXT_SET_DATE []PROGMEM = ("setdate \0");
