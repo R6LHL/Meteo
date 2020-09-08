@@ -129,7 +129,9 @@ void setup()
 //////////////////////////////////
   interrupts();
 
-  //pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+  
   pinMode(WAKE_BUTTON,INPUT);
   digitalWrite(WAKE_BUTTON, HIGH);
 
@@ -202,6 +204,7 @@ void setup()
 /// Working
    TaskManager::SetTask_(read_meteo,0);
    TaskManager::SetTask_(checkUART,0);
+   TaskManager::SetTask_(batt_control,0);
 //#endif
 }
 

@@ -14,6 +14,10 @@
   extern void print_meteo_Hum(void);
   extern void print_room_Temp(void);
   extern void print_date_time(void);//!!!!!!!!!
+
+  extern void led_power_high(void);
+  extern void led_power_low(void);
+  extern void batt_control(void);
   
   extern void collect_ext_temp(void);
   extern void collect_int_temp(void);
@@ -45,7 +49,8 @@
 
 #if INTERNAL_SENSOR == BME280
     meteo_sensor.takeForcedMeasurement();
-#endif
+#endif  
+
     TaskManager::SetTask_(collect_ext_temp, 750);
   }
   
@@ -557,6 +562,36 @@ void print_supply_voltage(void)
    }
   }
   TaskManager::SetTask_(checkUART,100);
+ }
+
+ void led_power_high(void)
+ {
+  digitalWrite(LED_BUILTIN, HIGH);
+  TaskManager::SetTask_(led_power_high,3000);
+ }
+
+ void led_power_low(void)
+ {
+  digitalWrite(LED_BUILTIN, LOW);
+  TaskManager::SetTask_(led_power_low,3000);
+ }
+
+ void batt_control(void)
+ {
+  float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    voltage += CALIBRATION_ADDITIVE;
+
+    if(voltage <= 3.8){TaskManager::SetTask_(led_power_high, 0);}
+    else if(voltage > 3.8)
+    {
+      TaskManager::DeleteTask_(led_power_high);
+      TaskManager::DeleteTask_(led_power_low);
+    }
+    if (voltage > 4.1){digitalWrite(LED_BUILTIN, HIGH);}
+    else if (voltage <= 4.1){digitalWrite(LED_BUILTIN, LOW);}
+
+    TaskManager::SetTask_(batt_control, 60000);
  }
  //////////////////////////////////////////////////////
 
