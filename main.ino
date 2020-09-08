@@ -11,20 +11,20 @@
 #if INTERNAL_SENSOR == BME280
   Adafruit_BME280 meteo_sensor;
   
-  Serial_measure_i0_10        inner_temp0_10;
-  Serial_measure_i10_60       inner_temp10_60;
-  Serial_measure_i60_1440     inner_temp60_1440;
-  Serial_measure_i1440_10080  inner_temp1440_10080;
+  Serial_measure_f0_10        inner_temp0_10;
+  Serial_measure_f10_60       inner_temp10_60;
+  Serial_measure_f60_1440     inner_temp60_1440;
+  Serial_measure_f1440_10080  inner_temp1440_10080;
   
-  Serial_measure_i0_10        pressure0_10;
-  Serial_measure_i10_60       pressure10_60;
-  Serial_measure_i60_1440     pressure60_1440;
-  Serial_measure_i1440_10080  pressure1440_10080;
+  Serial_measure_f0_10        pressure0_10;
+  Serial_measure_f10_60       pressure10_60;
+  Serial_measure_f60_1440     pressure60_1440;
+  Serial_measure_f1440_10080  pressure1440_10080;
 
-  Serial_measure_i0_10        humidity0_10;
-  Serial_measure_i10_60       humidity10_60;
-  Serial_measure_i60_1440     humidity60_1440;
-  Serial_measure_i1440_10080  humidity1440_10080;
+  Serial_measure_f0_10        humidity0_10;
+  Serial_measure_f10_60       humidity10_60;
+  Serial_measure_f60_1440     humidity60_1440;
+  Serial_measure_f1440_10080  humidity1440_10080;
   
     
 #endif
@@ -45,10 +45,10 @@
     byte tempInt; 
     byte tempFloat;
 
-    Serial_measure_i0_10        ext_temp0_10;
-    Serial_measure_i10_60       ext_temp10_60;
-    Serial_measure_i60_1440     ext_temp60_1440;
-    Serial_measure_i1440_10080  ext_temp1440_10080;
+    Serial_measure_f0_10        ext_temp0_10;
+    Serial_measure_f10_60       ext_temp10_60;
+    Serial_measure_f60_1440     ext_temp60_1440;
+    Serial_measure_f1440_10080  ext_temp1440_10080;
     
   #endif
 #endif

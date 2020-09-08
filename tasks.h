@@ -25,9 +25,16 @@
   extern void collect_humidity(void);
 
   extern void compare_Temp(void);
+  extern void compare_Temp1(void);
+  
   extern void compare_pressure(void);
+  extern void compare_pressure1(void);
+  
   extern void compare_humidity(void);
+  extern void compare_humidity1(void);
+  
   extern void compare_room_temp(void);
+  extern void compare_room_temp1(void);
   
   extern void print_supply_voltage(void);
    
@@ -92,15 +99,8 @@
       ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
       ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
-      /*
-      if (ext_temp60_1440.get_carry_flag()== true)
-      {
-        ext_temp60_1440.set_carry_flag(false);
-        iteration = now.day();
-        ext_temp60_1440.mov_measure(ext60_1440.get_mid_value(), iteration);
-      }
-*/
-  
+      iteration = now.day();
+      ext_temp1440_10080.mov_measure(ext_temp60_1440.get_mid_value(), iteration);
 #endif
 
 #if INTERNAL_SENSOR == BME280
@@ -121,6 +121,8 @@ void collect_int_temp(void)
       inner_temp10_60.mov_measure(inner_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
       inner_temp60_1440.mov_measure(inner_temp10_60.get_mid_value(), iteration);
+      iteration = now.day();
+      inner_temp1440_10080.mov_measure(inner_temp60_1440.get_mid_value(), iteration);
      
   
   TaskManager::SetTask_(collect_pressure,0);
@@ -136,6 +138,8 @@ void collect_pressure(void)
       pressure10_60.mov_measure(pressure0_10.get_mid_value(), iteration);
       iteration = now.hour(); 
       pressure60_1440.mov_measure(pressure10_60.get_mid_value(), iteration);
+      iteration = now.day();
+      pressure1440_10080.mov_measure(pressure60_1440.get_mid_value(), iteration);
       
   
   TaskManager::SetTask_(collect_humidity,0);
@@ -151,8 +155,9 @@ void collect_humidity(void)
       humidity10_60.mov_measure(humidity0_10.get_mid_value(), iteration);   
       iteration = now.hour();;
       humidity60_1440.mov_measure(humidity10_60.get_mid_value(), iteration);
+      iteration = now.day();
+      humidity1440_10080.mov_measure(humidity60_1440.get_mid_value(), iteration);
       
-  
   TaskManager::SetTask_(wake_or_sleep,0);
 }
 #endif
@@ -178,12 +183,12 @@ void collect_humidity(void)
     Serial.print(external_temperature);
     Serial.println(TEXT_CELSIUS_DEGREE);
     //debug
-    Serial.println(ext_temp0_10.get_iterator());
-    Serial.println(now.minute()%10);
-    Serial.println(ext_temp10_60.get_iterator());
-    Serial.println(now.minute()/10);
-    Serial.println(ext_temp60_1440.get_iterator());
-    Serial.println(now.hour());
+    //Serial.println(ext_temp0_10.get_iterator());
+    //Serial.println(now.minute()%10);
+    //Serial.println(ext_temp10_60.get_iterator());
+    //Serial.println(now.minute()/10);
+    //Serial.println(ext_temp60_1440.get_iterator());
+    //Serial.println(now.hour());
     //end debug
 #endif    
 
@@ -210,13 +215,9 @@ void collect_humidity(void)
     lcd.print(TEXT_D10M);
     lcd.print(ext_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(ext_temp10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(ext_temp60_1440.get_delta());
-    lcd.setCursor(9,1);
 #endif
 
 #if UART_ENABLED == 1  
@@ -224,12 +225,32 @@ void collect_humidity(void)
     Serial.println(ext_temp0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(ext_temp10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(ext_temp60_1440.get_delta());
 #endif
     
-    TaskManager::SetTask_(print_meteo_Press,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_Temp1,_SCREEN_DELAY);
   }
+
+void compare_Temp1(void)
+{
+  #if LCD_TYPE == LCD1602
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(TEXT_D24H);
+  lcd.print(ext_temp60_1440.get_delta());
+  lcd.setCursor(0,1);
+  lcd.print(TEXT_D7D);
+  lcd.print(ext_temp1440_10080.get_delta());
+  #endif
+
+  #if UART_ENABLED == 1
+  Serial.print(TEXT_D24H);
+  Serial.println(ext_temp60_1440.get_delta());
+  Serial.print(TEXT_D7D);
+  Serial.println(ext_temp1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_meteo_Press,_SCREEN_DELAY);
+}
  
 //////PRINT Pressure/////////
   void  print_meteo_Press(void)
@@ -261,13 +282,9 @@ void compare_pressure(void)
     lcd.print(TEXT_D10M);
     lcd.print(pressure0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(pressure10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(pressure60_1440.get_delta());
-    lcd.setCursor(9,1);
 #endif
 
 #if UART_ENABLED == 1  
@@ -275,12 +292,33 @@ void compare_pressure(void)
     Serial.println(pressure0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(pressure10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(pressure60_1440.get_delta());
 #endif
 
-    TaskManager::SetTask_(print_meteo_Hum,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_pressure1,_SCREEN_DELAY);
 }
+
+void compare_pressure1(void)  
+{
+  #if LCD_TYPE == LCD1602    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_D24H);
+    lcd.print(pressure60_1440.get_delta());
+    lcd.setCursor(0,1);
+    lcd.print(TEXT_D7D);
+    lcd.print(pressure1440_10080.get_delta());
+  #endif
+
+  #if UART_ENABLED == 1  
+    Serial.print(TEXT_D24H);
+    Serial.println(pressure60_1440.get_delta());
+    Serial.print(TEXT_D7D);
+    Serial.println(pressure1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_meteo_Hum,_SCREEN_DELAY);
+}
+
 //////PRINT humidity/////////
 void  print_meteo_Hum(void)
   {
@@ -306,19 +344,15 @@ void  print_meteo_Hum(void)
 
 void compare_humidity(void)  
 {
-     #if LCD_TYPE == LCD1602    
+    #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_D10M);
     lcd.print(humidity0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(humidity10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(humidity60_1440.get_delta());
-    lcd.setCursor(9,1);
 #endif
 
 #if UART_ENABLED == 1  
@@ -326,11 +360,31 @@ void compare_humidity(void)
     Serial.println(humidity0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(humidity10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(humidity60_1440.get_delta());
 #endif
     
-    TaskManager::SetTask_(print_room_Temp,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_humidity1,_SCREEN_DELAY);
+}
+
+void compare_humidity1(void)
+{
+  #if LCD_TYPE == LCD1602    
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(TEXT_D24H);
+  lcd.print(humidity60_1440.get_delta());
+  lcd.setCursor(0,1);
+  lcd.print(TEXT_D7D);
+  lcd.print(humidity1440_10080.get_delta());
+  #endif
+
+  #if UART_ENABLED == 1  
+    Serial.print(TEXT_D24H);
+    Serial.println(humidity60_1440.get_delta());
+    Serial.print(TEXT_D7D);
+    Serial.println(humidity1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_room_Temp,_SCREEN_DELAY);
 }
 
 void print_room_Temp(void)
@@ -363,13 +417,11 @@ void compare_room_temp(void)
     lcd.print(TEXT_D10M);
     lcd.print(inner_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
-    lcd.setCursor(9,0);
+    lcd.setCursor(0,1);
     lcd.print(TEXT_D1H);
     lcd.print(inner_temp10_60.get_delta());
-    lcd.setCursor(0,1);
-    lcd.print(TEXT_D24H);
-    lcd.print(inner_temp60_1440.get_delta());
-    lcd.setCursor(9,1);
+    
+    
 #endif
 
 #if UART_ENABLED == 1  
@@ -377,11 +429,32 @@ void compare_room_temp(void)
     Serial.println(inner_temp0_10.get_delta());
     Serial.print(TEXT_D1H);
     Serial.println(inner_temp10_60.get_delta());
-    Serial.print(TEXT_D24H);
-    Serial.println(inner_temp60_1440.get_delta());
 #endif
             
-    TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
+    TaskManager::SetTask_(compare_room_temp1,_SCREEN_DELAY);
+}
+
+void compare_room_temp1(void)
+{
+  #if LCD_TYPE == LCD1602    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_D24H);
+    lcd.print(inner_temp60_1440.get_delta());
+    lcd.setCursor(0,1);
+    lcd.print(TEXT_D7D);
+    lcd.print(inner_temp1440_10080.get_delta());
+    
+  #endif
+
+  #if UART_ENABLED == 1  
+    Serial.print(TEXT_D24H);
+    Serial.println(inner_temp60_1440.get_delta());
+    Serial.print(TEXT_D7D);
+    Serial.println(inner_temp1440_10080.get_delta());
+  #endif
+
+  TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
 }
 
 #if REAL_TIME_CLOCK == DS3231_
