@@ -39,6 +39,9 @@
 */
   typedef Serial_measure <float, 10> Serial_measure_f0_10;
   typedef Serial_measure <float, 6> Serial_measure_f10_60;
+  //typedef Serial_measure <float, 3> Serial_measure_f60_180;
+  //typedef Serial_measure <float, 6> Serial_measure_f180_360;
+  //typedef Serial_measure <float, 12> Serial_measure_f360_720;
   typedef Serial_measure <float, 24> Serial_measure_f60_1440;
   typedef Serial_measure <float, 7> Serial_measure_f1440_10080;
 /*

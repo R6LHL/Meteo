@@ -26,12 +26,18 @@
 
   extern void compare_Temp(void);
   extern void compare_Temp1(void);
+  extern void compare_Temp2(void);
+  extern void compare_Temp3(void);
   
   extern void compare_pressure(void);
   extern void compare_pressure1(void);
+  extern void compare_pressure2(void);
+  extern void compare_pressure3(void);
   
   extern void compare_humidity(void);
   extern void compare_humidity1(void);
+  extern void compare_humidity2(void);
+  extern void compare_humidity3(void);
   
   extern void compare_room_temp(void);
   extern void compare_room_temp1(void);
@@ -98,6 +104,7 @@
       iteration = now.minute()/10;
       ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
+      
       ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
       iteration = now.day();
       ext_temp1440_10080.mov_measure(ext_temp60_1440.get_mid_value(), iteration);
@@ -121,10 +128,10 @@ void collect_int_temp(void)
       inner_temp10_60.mov_measure(inner_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
       inner_temp60_1440.mov_measure(inner_temp10_60.get_mid_value(), iteration);
+      /*
       iteration = now.day();
       inner_temp1440_10080.mov_measure(inner_temp60_1440.get_mid_value(), iteration);
-     
-  
+      */
   TaskManager::SetTask_(collect_pressure,0);
 }
 
@@ -441,17 +448,20 @@ void compare_room_temp1(void)
     lcd.setCursor(0,0);
     lcd.print(TEXT_D24H);
     lcd.print(inner_temp60_1440.get_delta());
+    /*
     lcd.setCursor(0,1);
     lcd.print(TEXT_D7D);
     lcd.print(inner_temp1440_10080.get_delta());
-    
+    */
   #endif
 
   #if UART_ENABLED == 1  
     Serial.print(TEXT_D24H);
     Serial.println(inner_temp60_1440.get_delta());
+    /*
     Serial.print(TEXT_D7D);
     Serial.println(inner_temp1440_10080.get_delta());
+    */
   #endif
 
   TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
@@ -513,8 +523,9 @@ void compare_room_temp1(void)
 void print_supply_voltage(void)
 {
     #if LCD_TYPE == LCD1602
-    float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
-    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    int battery = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    float voltage = (battery) * (AREF_VOLTAGE) * (BATT_VOLTAGE_DIVIDER);
+    voltage = voltage / 1024;
     voltage += CALIBRATION_ADDITIVE;
     
     lcd.clear();
@@ -527,6 +538,7 @@ void print_supply_voltage(void)
     #if UART_ENABLED == 1
 
     Serial.print(TEXT_BATT_VOLTAGE);
+    //Serial.println (battery); ///debug
     Serial.print(voltage);
     Serial.println(TEXT_VOLT_SIGN);
     
@@ -640,31 +652,36 @@ void print_supply_voltage(void)
  void led_power_high(void)
  {
   digitalWrite(LED_BUILTIN, HIGH);
-  TaskManager::SetTask_(led_power_high,3000);
+  TaskManager::SetTask_(led_power_low,500);
  }
 
  void led_power_low(void)
  {
   digitalWrite(LED_BUILTIN, LOW);
-  TaskManager::SetTask_(led_power_low,3000);
+  TaskManager::SetTask_(led_power_high,500);
  }
 
  void batt_control(void)
  {
-  float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
-    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    int battery = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    float voltage = (battery) * (AREF_VOLTAGE) * (BATT_VOLTAGE_DIVIDER);
+    voltage = voltage / 1024;
     voltage += CALIBRATION_ADDITIVE;
-
+    /* DEBUG
+    Serial.println(battery);
+    Serial.println(AREF_VOLTAGE);
+    Serial.println(voltage);
+    END DEBUG*/
     if(voltage <= 3.8){TaskManager::SetTask_(led_power_high, 0);}
-    else if(voltage > 3.8)
+    else if((voltage > 3.8) && (voltage <= 4.1))
     {
       TaskManager::DeleteTask_(led_power_high);
       TaskManager::DeleteTask_(led_power_low);
     }
     if (voltage > 4.1){digitalWrite(LED_BUILTIN, HIGH);}
-    else if (voltage <= 4.1){digitalWrite(LED_BUILTIN, LOW);}
+    else if ((voltage <= 4.1) && (voltage > 3.8)){digitalWrite(LED_BUILTIN, LOW);}
 
-    TaskManager::SetTask_(batt_control, 60000);
+    TaskManager::SetTask_(batt_control, BATT_CONTROL_PERIOD_MS);
  }
  //////////////////////////////////////////////////////
 

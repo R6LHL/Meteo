@@ -12,17 +12,32 @@
   Adafruit_BME280 meteo_sensor;
   
   Serial_measure_f0_10        inner_temp0_10;
-  Serial_measure_f10_60       inner_temp10_60;
-  Serial_measure_f60_1440     inner_temp60_1440;
-  Serial_measure_f1440_10080  inner_temp1440_10080;
+  Serial_measure_f10_60       inner_temp10_60;\
+  /*
+  Serial_measure_f60_180      inner_temp60_180;
+  Serial_measure_f180_360     inner_temp180_360;
+  Serial_measure_f360_720     inner_temp360_720;
+  */
+  Serial_measure_f60_1440    inner_temp60_1440;
+  //Serial_measure_f1440_10080  inner_temp1440_10080;
   
   Serial_measure_f0_10        pressure0_10;
   Serial_measure_f10_60       pressure10_60;
+  /*
+  Serial_measure_f60_180      pressure60_180;
+  Serial_measure_f180_360     pressure180_360;
+  Serial_measure_f360_720     pressure360_720;
+  */
   Serial_measure_f60_1440     pressure60_1440;
   Serial_measure_f1440_10080  pressure1440_10080;
 
   Serial_measure_f0_10        humidity0_10;
   Serial_measure_f10_60       humidity10_60;
+  /*
+  Serial_measure_f60_180      humidity60_180;
+  Serial_measure_f180_360     humidity180_360;
+  Serial_measure_f360_720     humidity360_720;
+  */
   Serial_measure_f60_1440     humidity60_1440;
   Serial_measure_f1440_10080  humidity1440_10080;
   
@@ -47,6 +62,11 @@
 
     Serial_measure_f0_10        ext_temp0_10;
     Serial_measure_f10_60       ext_temp10_60;
+    /*
+    Serial_measure_f60_180      ext_temp60_180;
+    Serial_measure_f180_360     ext_temp180_360;
+    Serial_measure_f360_720     ext_temp360_720;
+    */
     Serial_measure_f60_1440     ext_temp60_1440;
     Serial_measure_f1440_10080  ext_temp1440_10080;
     
@@ -135,7 +155,7 @@ void setup()
   pinMode(WAKE_BUTTON,INPUT);
   digitalWrite(WAKE_BUTTON, HIGH);
 
-  analogReference(EXTERNAL);
+  analogReference(DEFAULT);
 
 /////////////////////////////////
 #if UART_ENABLED == 1
