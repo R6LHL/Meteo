@@ -671,7 +671,7 @@ void print_supply_voltage(void)
     if (voltage > 4.1){digitalWrite(LED_BUILTIN, HIGH);}
     else if ((voltage <= 4.1) && (voltage > 3.8)){digitalWrite(LED_BUILTIN, LOW);}
 
-    TaskManager::SetTask_(batt_control, 1000);
+    TaskManager::SetTask_(batt_control, BATT_CONTROL_PERIOD_MS);
  }
  //////////////////////////////////////////////////////
 
