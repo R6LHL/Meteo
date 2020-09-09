@@ -60,8 +60,8 @@ const unsigned char WAKE_BUTTON = (2);
 
 #if POWER_SUPPLY == AUTONOMOUS
   #define AREF_VOLTAGE  (5.0)
-  #define SUPPLY_VOLTAGE_ANALOG_PIN (1)
-  #define BATT_VOLTAGE_DIVIDER (1.0)
+  #define SUPPLY_VOLTAGE_ANALOG_PIN (0)
+  #define BATT_VOLTAGE_DIVIDER (1)
   #define CALIBRATION_ADDITIVE (0)
 #endif
 

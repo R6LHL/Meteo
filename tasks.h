@@ -513,8 +513,9 @@ void compare_room_temp1(void)
 void print_supply_voltage(void)
 {
     #if LCD_TYPE == LCD1602
-    float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
-    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    int battery = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    float voltage = (battery) * (AREF_VOLTAGE) * (BATT_VOLTAGE_DIVIDER);
+    voltage = voltage / 1024;
     voltage += CALIBRATION_ADDITIVE;
     
     lcd.clear();
@@ -527,6 +528,7 @@ void print_supply_voltage(void)
     #if UART_ENABLED == 1
 
     Serial.print(TEXT_BATT_VOLTAGE);
+    //Serial.println (battery); ///debug
     Serial.print(voltage);
     Serial.println(TEXT_VOLT_SIGN);
     
@@ -640,31 +642,36 @@ void print_supply_voltage(void)
  void led_power_high(void)
  {
   digitalWrite(LED_BUILTIN, HIGH);
-  TaskManager::SetTask_(led_power_high,3000);
+  TaskManager::SetTask_(led_power_low,500);
  }
 
  void led_power_low(void)
  {
   digitalWrite(LED_BUILTIN, LOW);
-  TaskManager::SetTask_(led_power_low,3000);
+  TaskManager::SetTask_(led_power_high,500);
  }
 
  void batt_control(void)
  {
-  float voltage = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
-    voltage = ((voltage/1024) * AREF_VOLTAGE * BATT_VOLTAGE_DIVIDER);
+    int battery = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
+    float voltage = (battery) * (AREF_VOLTAGE) * (BATT_VOLTAGE_DIVIDER);
+    voltage = voltage / 1024;
     voltage += CALIBRATION_ADDITIVE;
-
+    /* DEBUG
+    Serial.println(battery);
+    Serial.println(AREF_VOLTAGE);
+    Serial.println(voltage);
+    END DEBUG*/
     if(voltage <= 3.8){TaskManager::SetTask_(led_power_high, 0);}
-    else if(voltage > 3.8)
+    else if((voltage > 3.8) && (voltage <= 4.1))
     {
       TaskManager::DeleteTask_(led_power_high);
       TaskManager::DeleteTask_(led_power_low);
     }
     if (voltage > 4.1){digitalWrite(LED_BUILTIN, HIGH);}
-    else if (voltage <= 4.1){digitalWrite(LED_BUILTIN, LOW);}
+    else if ((voltage <= 4.1) && (voltage > 3.8)){digitalWrite(LED_BUILTIN, LOW);}
 
-    TaskManager::SetTask_(batt_control, 60000);
+    TaskManager::SetTask_(batt_control, 1000);
  }
  //////////////////////////////////////////////////////
 
