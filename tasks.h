@@ -26,12 +26,18 @@
 
   extern void compare_Temp(void);
   extern void compare_Temp1(void);
+  extern void compare_Temp2(void);
+  extern void compare_Temp3(void);
   
   extern void compare_pressure(void);
   extern void compare_pressure1(void);
+  extern void compare_pressure2(void);
+  extern void compare_pressure3(void);
   
   extern void compare_humidity(void);
   extern void compare_humidity1(void);
+  extern void compare_humidity2(void);
+  extern void compare_humidity3(void);
   
   extern void compare_room_temp(void);
   extern void compare_room_temp1(void);
@@ -98,6 +104,7 @@
       iteration = now.minute()/10;
       ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
+      
       ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
       iteration = now.day();
       ext_temp1440_10080.mov_measure(ext_temp60_1440.get_mid_value(), iteration);
@@ -121,10 +128,10 @@ void collect_int_temp(void)
       inner_temp10_60.mov_measure(inner_temp0_10.get_mid_value(), iteration);
       iteration = now.hour();
       inner_temp60_1440.mov_measure(inner_temp10_60.get_mid_value(), iteration);
+      /*
       iteration = now.day();
       inner_temp1440_10080.mov_measure(inner_temp60_1440.get_mid_value(), iteration);
-     
-  
+      */
   TaskManager::SetTask_(collect_pressure,0);
 }
 
@@ -441,17 +448,20 @@ void compare_room_temp1(void)
     lcd.setCursor(0,0);
     lcd.print(TEXT_D24H);
     lcd.print(inner_temp60_1440.get_delta());
+    /*
     lcd.setCursor(0,1);
     lcd.print(TEXT_D7D);
     lcd.print(inner_temp1440_10080.get_delta());
-    
+    */
   #endif
 
   #if UART_ENABLED == 1  
     Serial.print(TEXT_D24H);
     Serial.println(inner_temp60_1440.get_delta());
+    /*
     Serial.print(TEXT_D7D);
     Serial.println(inner_temp1440_10080.get_delta());
+    */
   #endif
 
   TaskManager::SetTask_(print_date_time,_SCREEN_DELAY);
