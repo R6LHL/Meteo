@@ -219,18 +219,22 @@ void collect_humidity(void)
    //
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(TEXT_D10M);
+    lcd.print(TEXT_DTe);
+    lcd.print(TEXT_10M );
     lcd.print(ext_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
     lcd.setCursor(0,1);
-    lcd.print(TEXT_D1H);
+    lcd.print(TEXT_DTe);
+    lcd.print(TEXT_1H);
     lcd.print(ext_temp10_60.get_delta());
 #endif
 
 #if UART_ENABLED == 1  
-    Serial.print(TEXT_D10M);
+    Serial.print(TEXT_DTe);
+    Serial.print(TEXT_10M);
     Serial.println(ext_temp0_10.get_delta());
-    Serial.print(TEXT_D1H);
+    Serial.print(TEXT_DTe);
+    Serial.print(TEXT_1H);
     Serial.println(ext_temp10_60.get_delta());
 #endif
     
@@ -242,17 +246,21 @@ void compare_Temp1(void)
   #if LCD_TYPE == LCD1602
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print(TEXT_D24H);
+  lcd.print(TEXT_DTe);    
+  lcd.print(TEXT_24H);
   lcd.print(ext_temp60_1440.get_delta());
   lcd.setCursor(0,1);
-  lcd.print(TEXT_D7D);
+  lcd.print(TEXT_DTe);
+  lcd.print(TEXT_7D);
   lcd.print(ext_temp1440_10080.get_delta());
   #endif
 
   #if UART_ENABLED == 1
-  Serial.print(TEXT_D24H);
+  Serial.print(TEXT_DTe);
+  Serial.print(TEXT_24H);
   Serial.println(ext_temp60_1440.get_delta());
-  Serial.print(TEXT_D7D);
+  Serial.print(TEXT_DTe);
+  Serial.print(TEXT_7D);
   Serial.println(ext_temp1440_10080.get_delta());
   #endif
 
@@ -286,18 +294,22 @@ void compare_pressure(void)
   #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(TEXT_D10M);
+    lcd.print(TEXT_DP);
+    lcd.print(TEXT_10M);
     lcd.print(pressure0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
     lcd.setCursor(0,1);
-    lcd.print(TEXT_D1H);
+    lcd.print(TEXT_DP);
+    lcd.print(TEXT_1H);
     lcd.print(pressure10_60.get_delta());
 #endif
 
 #if UART_ENABLED == 1  
-    Serial.print(TEXT_D10M);
+    Serial.print(TEXT_DP);
+    Serial.print(TEXT_10M);
     Serial.println(pressure0_10.get_delta());
-    Serial.print(TEXT_D1H);
+    Serial.print(TEXT_DP);
+    Serial.print(TEXT_1H);
     Serial.println(pressure10_60.get_delta());
 #endif
 
@@ -309,17 +321,21 @@ void compare_pressure1(void)
   #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(TEXT_D24H);
+    lcd.print(TEXT_DP);
+    lcd.print(TEXT_24H);
     lcd.print(pressure60_1440.get_delta());
     lcd.setCursor(0,1);
-    lcd.print(TEXT_D7D);
+    lcd.print(TEXT_DP);
+    lcd.print(TEXT_7D);
     lcd.print(pressure1440_10080.get_delta());
   #endif
 
-  #if UART_ENABLED == 1  
-    Serial.print(TEXT_D24H);
+  #if UART_ENABLED == 1
+    Serial.print(TEXT_DP);
+    Serial.print(TEXT_24H);
     Serial.println(pressure60_1440.get_delta());
-    Serial.print(TEXT_D7D);
+    Serial.print(TEXT_DP);
+    Serial.print(TEXT_7D);
     Serial.println(pressure1440_10080.get_delta());
   #endif
 
@@ -354,18 +370,22 @@ void compare_humidity(void)
     #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(TEXT_D10M);
+    lcd.print(TEXT_DH);
+    lcd.print(TEXT_10M);
     lcd.print(humidity0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
     lcd.setCursor(0,1);
-    lcd.print(TEXT_D1H);
+    lcd.print(TEXT_DH);
+    lcd.print(TEXT_1H);
     lcd.print(humidity10_60.get_delta());
 #endif
 
 #if UART_ENABLED == 1  
-    Serial.print(TEXT_D10M);
+    Serial.print(TEXT_DH);
+    Serial.print(TEXT_10M);
     Serial.println(humidity0_10.get_delta());
-    Serial.print(TEXT_D1H);
+    Serial.print(TEXT_DH);
+    Serial.print(TEXT_1H);
     Serial.println(humidity10_60.get_delta());
 #endif
     
@@ -377,17 +397,21 @@ void compare_humidity1(void)
   #if LCD_TYPE == LCD1602    
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print(TEXT_D24H);
+  lcd.print(TEXT_DH);
+  lcd.print(TEXT_24H);
   lcd.print(humidity60_1440.get_delta());
   lcd.setCursor(0,1);
-  lcd.print(TEXT_D7D);
+  lcd.print(TEXT_DH);
+  lcd.print(TEXT_7D);
   lcd.print(humidity1440_10080.get_delta());
   #endif
 
   #if UART_ENABLED == 1  
-    Serial.print(TEXT_D24H);
+    Serial.print(TEXT_DH);
+    Serial.print(TEXT_24H);
     Serial.println(humidity60_1440.get_delta());
-    Serial.print(TEXT_D7D);
+    Serial.print(TEXT_DH);
+    Serial.print(TEXT_7D);
     Serial.println(humidity1440_10080.get_delta());
   #endif
 
@@ -421,20 +445,22 @@ void compare_room_temp(void)
   #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(TEXT_D10M);
+    lcd.print(TEXT_DTi);
+    lcd.print(TEXT_10M);
     lcd.print(inner_temp0_10.get_delta());
     lcd.print(SPACE_DEVIDER);
     lcd.setCursor(0,1);
-    lcd.print(TEXT_D1H);
+    lcd.print(TEXT_DTi);
+    lcd.print(TEXT_1H);
     lcd.print(inner_temp10_60.get_delta());
-    
-    
-#endif
+  #endif
 
 #if UART_ENABLED == 1  
-    Serial.print(TEXT_D10M);
+    Serial.print(TEXT_DTi);
+    Serial.print(TEXT_10M);
     Serial.println(inner_temp0_10.get_delta());
-    Serial.print(TEXT_D1H);
+    Serial.print(TEXT_DTi);
+    Serial.print(TEXT_1H);
     Serial.println(inner_temp10_60.get_delta());
 #endif
             
@@ -446,7 +472,8 @@ void compare_room_temp1(void)
   #if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print(TEXT_D24H);
+    lcd.print(TEXT_DTi);
+    lcd.print(TEXT_24H);
     lcd.print(inner_temp60_1440.get_delta());
     /*
     lcd.setCursor(0,1);
@@ -456,7 +483,8 @@ void compare_room_temp1(void)
   #endif
 
   #if UART_ENABLED == 1  
-    Serial.print(TEXT_D24H);
+    Serial.print(TEXT_DTi);
+    Serial.print(TEXT_24H);
     Serial.println(inner_temp60_1440.get_delta());
     /*
     Serial.print(TEXT_D7D);

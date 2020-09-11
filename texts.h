@@ -17,10 +17,14 @@
     #define TEXT_STABLE               (F("stable \0"))
     #define TEXT_MIN                  (F("min\0"))
                   
-    #define TEXT_D10M                 (F("d10m:\0"))
-    #define TEXT_D1H                  (F("d1h:\0"))
-    #define TEXT_D24H                 (F("d24h:\0"))
-    #define TEXT_D7D                  (F("d7d:\0"))
+    #define TEXT_DTe                  (F("dTe\0"))
+    #define TEXT_DTi                  (F("dTi\0"))
+    #define TEXT_DP                   (F("dP\0"))
+    #define TEXT_DH                   (F("dH\0"))
+    #define TEXT_10M                  (F("10m:\0"))
+    #define TEXT_1H                   (F("1h:\0"))
+    #define TEXT_24H                  (F("24h:\0"))
+    #define TEXT_7D                  (F("7d:\0"))
         
     #define TEXT_PRESSURE_IS          (F("Pressure is \0"))
     #define TEXT_HPA                  (F(" hPa\0"))
