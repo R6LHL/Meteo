@@ -151,7 +151,7 @@ void SYS_checkUART(void)
   TaskManager::SetTask_(SYS_checkUART,100);
 }
 /////////////////////////////////////////////////
-
+#if POWER_SUPPLY == AUTONOMOUS
 void SYS_led_power_high(void)
 {
   digitalWrite(LED_BUILTIN, HIGH);
@@ -187,6 +187,7 @@ void SYS_batt_control(void)
 
     TaskManager::SetTask_(SYS_batt_control, BATT_CONTROL_PERIOD_MS);
 }
+#endif //POWER_SUPPLY == AUTONOMOUS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SYS_wake_or_sleep(void)
@@ -258,49 +259,58 @@ void BACKGND_collect_ext_temp(void)
  ////STATISTIC
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
-    //DEBUG
+    
+#if DEBUG_MODE == ENABLED
     Serial.print(F("now.minute() "));
     Serial.println(now.minute(), DEC);
     Serial.print(F("now.minute()%10 "));
     Serial.println(now.minute()%10,DEC);
-    //END DEBUG
+#endif
     
-    ext_temp0_10.mov_measure(external_temperature, iteration);
-        
+    ext_temp0_10.mov_measure(external_temperature, iteration);  
     iteration = now.minute()/10;
-    //DEBUG
+    
+#if DEBUG_MODE == ENABLED
     Serial.print(F("now.minute()/10 "));
     Serial.println(now.minute()/10, DEC);
-    //END DEBUG
+#endif
+
     iteration = now.minute()/10;
     ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
+    
+#if  DEBUG_MODE == ENABLED   
     Serial.print(F("ext_temp0_10.get_mid_value() "));
     Serial.println(ext_temp0_10.get_mid_value());
+#endif
     
     iteration = now.hour();
+    
+#if DEBUG_MODE == ENABLED    
     Serial.print(F("now.hour() "));
     Serial.println(now.hour());
-
+#endif
+    
     ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
+
+#if DEBUG_MODE == ENABLED
     Serial.print(F("ext_temp10_60.get_mid_value() "));
     Serial.println(ext_temp10_60.get_mid_value());
-    //iteration = now.dayOfTheWeek();
-    
-    
-     //DEBUG
-    //Serial.print(F("now.dayOfTheWeek() "));
-    //Serial.println(now.dayOfTheWeek());
-    
-    //END DEBUG 
+#endif //EXTERNAL_SENSOR == DS18B20
+
+    /*!!!BUG!!!
+    iteration = now.dayOfTheWeek();
+#if DEBUG_MODE == ENABLED
+    Serial.print(F("now.dayOfTheWeek() "));
+    Serial.println(now.dayOfTheWeek());
+#endif
     
     ext_temp1440_10080.mov_measure(ext_temp60_1440.get_mid_value(), iteration);
-    //DEBUG
     
+#if DEBUG_MODE == ENABLED    
     Serial.print(F("ext_temp60_1440.get_mid_value() "));
     Serial.println(ext_temp60_1440.get_mid_value());
-    //END DEBUG
-    
-    
+#endif
+    */
 #endif
 
 #if INTERNAL_SENSOR == BME280
@@ -373,15 +383,17 @@ void UI_print_meteo_Temp(void)
     Serial.print(TEXT_TEMPERATURE_IS);
     Serial.print(external_temperature);
     Serial.println(TEXT_CELSIUS_DEGREE);
-    //debug
-    //Serial.println(ext_temp0_10.get_iterator());
-    //Serial.println(now.minute()%10);
-    //Serial.println(ext_temp10_60.get_iterator());
-    //Serial.println(now.minute()/10);
-    //Serial.println(ext_temp60_1440.get_iterator());
-    //Serial.println(now.hour());
-    //end debug
-#endif    
+    
+#if DEBUG_MODE == ENABLED
+    Serial.println(ext_temp0_10.get_iterator());
+    Serial.println(now.minute()%10);
+    Serial.println(ext_temp10_60.get_iterator());
+    Serial.println(now.minute()/10);
+    Serial.println(ext_temp60_1440.get_iterator());
+    Serial.println(now.hour());
+#endif  
+    
+#endif //UART_ENABLED == 1
 
 #if LCD_TYPE == LCD1602
     lcd.clear();
@@ -415,7 +427,7 @@ void UI_compare_Temp(void)
     lcd.print(ext_temp60_1440.get_delta(iteration,3));
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX  
     Serial.print(TEXT_DTe);
     Serial.print(TEXT_1H);
     Serial.println(ext_temp10_60.get_delta());
@@ -445,7 +457,7 @@ void UI_compare_Temp1(void)
   lcd.print(ext_temp60_1440.get_delta(iteration,12));
 #endif
 
-#if UART_ENABLED == 1
+#if UART_MODE == TRX
   Serial.print(TEXT_DTe);
   Serial.print(TEXT_6H);
   Serial.println(ext_temp60_1440.get_delta(iteration,6));
@@ -475,7 +487,7 @@ void UI_compare_Temp2(void)
   lcd.print(ext_temp1440_10080.get_delta(now.day(),7));
 #endif
   
-#if UART_ENABLED == 1
+#if UART_MODE == TRX
   Serial.print(TEXT_DTe);
   Serial.print(TEXT_24H);
   Serial.println(ext_temp60_1440.get_delta(now.hour(),24));
@@ -490,7 +502,7 @@ void UI_compare_Temp2(void)
 
 void UI_print_meteo_Press(void)
 {
-#if UART_ENABLED == 1    
+#if UART_MODE == TRX   
     Serial.print(TEXT_PRESSURE_IS);
     Serial.print((meteo_sensor.readPressure()/100.0F));
     //Serial.print(external_temperature);         //DEBUG
@@ -529,7 +541,7 @@ void UI_compare_pressure(void)
     lcd.print(pressure60_1440.get_delta(iteration,3));
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX 
     Serial.print(TEXT_DP);
     Serial.print(TEXT_1H);
     Serial.println(pressure10_60.get_delta());
@@ -559,7 +571,7 @@ void UI_compare_pressure1(void)
     lcd.print(pressure60_1440.get_delta(iteration,12));
 #endif
 
-#if UART_ENABLED == 1
+#if UART_MODE == TRX
     Serial.print(TEXT_DP);
     Serial.print(TEXT_12H);
     Serial.println(pressure60_1440.get_delta(iteration,6));
@@ -587,7 +599,7 @@ void UI_compare_pressure2(void)
     lcd.print(pressure1440_10080.get_delta(now.day(),7));
 #endif
 
-#if UART_ENABLED == 1
+#if UART_MODE == TRX
     Serial.print(TEXT_DP);
     Serial.print(TEXT_24H);
     Serial.println(pressure60_1440.get_delta(now.hour(),24));
@@ -602,7 +614,7 @@ void UI_compare_pressure2(void)
 
 void UI_print_meteo_Hum(void)
 {
-#if UART_ENABLED == 1    
+#if UART_MODE == TRX    
   Serial.print(TEXT_HUMIDITY_IS);
     Serial.print(meteo_sensor.readHumidity());
     //Serial.print(external_temperature);         //DEBUG
@@ -641,7 +653,7 @@ void UI_compare_humidity(void)
     lcd.print(humidity60_1440.get_delta(iteration,3));
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX  
     Serial.print(TEXT_DH);
     Serial.print(TEXT_1H);
     Serial.println(humidity10_60.get_delta());
@@ -671,7 +683,7 @@ void UI_compare_humidity1(void)
   lcd.print(humidity60_1440.get_delta(iteration,12));
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX  
     Serial.print(TEXT_DH);
     Serial.print(TEXT_6H);
     Serial.println(humidity60_1440.get_delta(iteration,6));
@@ -699,7 +711,7 @@ void UI_compare_humidity2(void)
   lcd.print(humidity1440_10080.get_delta(now.day(),7));
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX  
     Serial.print(TEXT_DH);
     Serial.print(TEXT_24H);
     Serial.println(humidity60_1440.get_delta(now.hour(),24));
@@ -714,7 +726,7 @@ void UI_compare_humidity2(void)
 
 void UI_print_room_Temp(void)
 {
-#if UART_ENABLED == 1    
+#if UART_MODE == TRX    
     Serial.print(TEXT_ROOM_TEMPERATURE);
     Serial.print(meteo_sensor.readTemperature());
     //Serial.print(external_temperature);         //DEBUG
@@ -753,7 +765,7 @@ void UI_compare_room_temp(void)
     lcd.print(inner_temp60_1440.get_delta(iteration,3));
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX  
     Serial.print(TEXT_DTi);
     Serial.print(TEXT_1H);
     Serial.println(inner_temp10_60.get_delta());
@@ -783,7 +795,7 @@ void UI_compare_room_temp1(void)
     lcd.print(inner_temp60_1440.get_delta(iteration,12)); 
 #endif
 
-#if UART_ENABLED == 1  
+#if UART_MODE == TRX  
     Serial.print(TEXT_DTi);
     Serial.print(TEXT_6H);
     Serial.println(inner_temp60_1440.get_delta(iteration,6));
@@ -799,7 +811,7 @@ void UI_compare_room_temp1(void)
 void UI_print_date_time (void)
 {
   DateTime now = Clock.now();
-#if UART_ENABLED == 1    
+#if UART_MODE == TRX    
     if (now.day()<10){Serial.print(TEXT_ZERO);}
     Serial.print(now.day(),DEC);
     Serial.print(DATE_DEVIDER);
@@ -861,7 +873,7 @@ void UI_print_supply_voltage(void)
     lcd.print(TEXT_VOLT_SIGN);
 #endif
 
-#if UART_ENABLED == 1
+#if UART_MODE == TRX
     Serial.print(TEXT_BATT_VOLTAGE);
     //Serial.println (battery); ///debug
     Serial.print(voltage);

@@ -29,10 +29,11 @@ const unsigned char WAKE_BUTTON = (2);
 
 /////////////////////////////////////////////////////////////////////////////////////
 #define UART_ENABLED (1)
-
 #if UART_ENABLED == 1
+  #define UART_MODE (RX) //or TRX if you need a transmission
   const unsigned int UART_SPEED  = (9600);
 #endif
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 #define EXTERNAL_SENSOR (DS18B20) //comment this string if no external sensor present
@@ -67,5 +68,7 @@ const unsigned char WAKE_BUTTON = (2);
   #define BATTERY_HIGH (4.14) 
   #define BATTERY_LOW  (3.6)
 #endif
+
+#define DEBUG_MODE (DISABLED)
 
 #endif //_CONFIG_H
