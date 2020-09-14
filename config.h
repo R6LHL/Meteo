@@ -63,7 +63,9 @@ const unsigned char WAKE_BUTTON = (2);
   #define SUPPLY_VOLTAGE_ANALOG_PIN (0)
   #define BATT_VOLTAGE_DIVIDER (2.0)
   #define CALIBRATION_ADDITIVE (0.1)
-  #define BATT_CONTROL_PERIOD_MS (60000) 
+  #define BATT_CONTROL_PERIOD_MS (60000)
+  #define BATTERY_HIGH (4.14) 
+  #define BATTERY_LOW  (3.6)
 #endif
 
 #endif //_CONFIG_H

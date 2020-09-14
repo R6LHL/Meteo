@@ -23,8 +23,11 @@
     #define TEXT_DH                   (F("dH\0"))
     #define TEXT_10M                  (F("10m:\0"))
     #define TEXT_1H                   (F("1h:\0"))
+    #define TEXT_3H                   (F("3h:\0"))
+    #define TEXT_6H                   (F("6h:\0"))
+    #define TEXT_12H                  (F("12h:\0"))
     #define TEXT_24H                  (F("24h:\0"))
-    #define TEXT_7D                  (F("7d:\0"))
+    #define TEXT_7D                   (F("7d:\0"))
         
     #define TEXT_PRESSURE_IS          (F("Pressure is \0"))
     #define TEXT_HPA                  (F(" hPa\0"))
