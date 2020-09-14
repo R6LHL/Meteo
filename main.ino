@@ -199,7 +199,7 @@ void setup()
      
     if (!meteo_sensor.begin(0x76)) 
     {                                // Инициализация датчика BME280
-      #if UART_ENABLED == 1
+      #if UART_MODE == TRX
        Serial.println(TEXT_BME280_NOT_FOUND);  // Печать сообщения об ошибки
       #endif
 
@@ -238,8 +238,9 @@ void setup()
 /// Working
    TaskManager::SetTask_(BACKGND_read_meteo,0);
    TaskManager::SetTask_(SYS_checkUART,0);
+#if POWER_SUPPLY == AUTONOMOUS   
    TaskManager::SetTask_(SYS_batt_control,0);
-//#endif
+#endif
 
 interrupts();
 }
