@@ -74,12 +74,12 @@
 #endif
 
 #if REAL_TIME_CLOCK == DS3231_
-    volatile RTClib Clock;
+    RTClib Clock;
     bool century;
     bool am_pm;
     bool tw;
-    volatile DS3231 rtc;
-    volatile DateTime now;
+    DS3231 rtc;
+    extern DateTime now;
     //DateTime current_date;
 #endif
 
@@ -111,19 +111,34 @@ ISR(TIMER0_OVF_vect)
 }
 #endif
 
+
 ISR(INT0_vect)
 {
   PCICR &= ~(1<<PCIE0);
   EIMSK &= ~(1<<INT0);
 
-  TaskManager::SetTask_(device_wake,0);
+  TaskManager::SetTask_(SYS_device_wake,0);
 }
+/*
+ISR(WDT_OVF_vect)
+{
+  //DEBUG
+  //Serial.println("Interrupt is working");
+  //END DEBUG
+  
+  TaskManager::TimerTaskService_();
+}
+*/
+//////////////////////////////////////////////////////////////////////////////
+////END INTERRUPT HANDLERS
+//////////////////////////////////////////////////////////////////////////////
 
 void setup()
 {
   noInterrupts();
   
 /////////////////////////////////////
+
 #if UART_ENABLED == 1 //UART use TIMER0 so we use TIMER2 if UART is ENABLED
   TCCR2B |= (1<<CS22); // (clk/64)
   TIMSK2 |= (1<<TOIE2); // ovf interrupt enabled
@@ -132,6 +147,7 @@ void setup()
  TIMSK0 |= (1<<TOIE0); // ovf interrupt enabled
 #endif
 
+//WDTCSR |= (1<<WDIE)|(1<<WDCE)|(1<<WDP2)|(1<<WDP1); //tune watchdog timer for 1ms interrupt (128kHz/128) as TaskManager Timer
 ///////////////////////////////////  
 #ifdef EXTERNAL_SENSOR
   #if EXTERNAL_SENSOR == DS18B20
@@ -147,8 +163,6 @@ void setup()
 #endif
 
 //////////////////////////////////
-  interrupts();
-
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   
@@ -222,10 +236,12 @@ void setup()
 #endif
 
 /// Working
-   TaskManager::SetTask_(read_meteo,0);
-   TaskManager::SetTask_(checkUART,0);
-   TaskManager::SetTask_(batt_control,0);
+   TaskManager::SetTask_(BACKGND_read_meteo,0);
+   TaskManager::SetTask_(SYS_checkUART,0);
+   TaskManager::SetTask_(SYS_batt_control,0);
 //#endif
+
+interrupts();
 }
 
 void loop()

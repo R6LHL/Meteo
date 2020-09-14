@@ -22,7 +22,22 @@ class Serial_measure
 	T get_measure(unsigned char i){return measures[i];}
 	bool get_carry_flag(void){return carry_flag;}
 	void set_carry_flag(bool f){carry_flag = f;}
-	T get_delta(void){return delta;}
+	
+	T get_delta(void)
+	{
+		return measures[iterator] - measures[0];
+	}
+	
+	T get_delta(unsigned char element, unsigned char range)
+	{
+		unsigned char element1;
+		if((element - range) < 0)
+		{
+			element1 = E - abs(element - range);
+		}
+		else {element1 = element - range;}
+		return measures[element] - measures[element1];
+	}
 /*
 void add_measure(T m)
 {
@@ -57,37 +72,40 @@ void mov_measure(T m, unsigned char i)
 
   if (i >= (E))
   {
-    carry_flag = true;
+    //carry_flag = true;
 	iterator = 0;
   }
   else
   {
     measures[i] = m;
     iterator = i;
-	carry_flag = false;
+	//carry_flag = false;
   }
   
   if (first_add == true)
   {
-		for (byte i = 0; i < E; i++) 
+		for (unsigned char j = 0; j < E; j++) 
 		{
-				measures[i] = m;
+				measures[j] = m;
 		}
 		first_add = false;
   }
   
-  delta = measures[iterator] - measures[0];
+  //delta = measures[iterator] - measures[0];
 }
 
 T get_mid_value(void)
 {
-  T sum;
+  long temp = 0;
   
   for (unsigned char i = 0; i < E; i++)
   {
-    sum += measures[i];
+    
+	temp = (temp + measures[i]);
   }
-   return  (sum / E);
+ 
+	
+   return  (T)temp/E;
 }
 
 
@@ -96,9 +114,8 @@ T get_mid_value(void)
 	
 	T measures[E];
 	unsigned char iterator;
-	T delta;
 	bool first_add;
-  bool carry_flag;
+	bool carry_flag;
   
 };
 
