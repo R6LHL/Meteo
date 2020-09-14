@@ -179,8 +179,11 @@ void SYS_batt_control(void)
       TaskManager::DeleteTask_(SYS_led_power_high);
       TaskManager::DeleteTask_(SYS_led_power_low);
     }
+    
+    /* HIGH VOLTAGE CONTROL WITH BUILTIN LED
     if (voltage > BATTERY_HIGH){digitalWrite(LED_BUILTIN, HIGH);}
     else if ((voltage <= BATTERY_HIGH) && (voltage > BATTERY_LOW)){digitalWrite(LED_BUILTIN, LOW);}
+    */
 
     TaskManager::SetTask_(SYS_batt_control, BATT_CONTROL_PERIOD_MS);
 }
