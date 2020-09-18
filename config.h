@@ -10,7 +10,17 @@ const unsigned int _SLEEP_TIME  = (60000 - (6 * _SCREEN_DELAY));
 const unsigned char _SERIAL_MEASURE_QUANTITY = (10);
 const unsigned int _SENSOR_ASK_DELAY_MS = (60000);
 
-const unsigned char WAKE_BUTTON = (2);
+const unsigned char TEMP_EXT_BUTTON = (8);
+//#define TEMP_EXT_BUTTON_CODE          (0b11111110)
+const unsigned char TEMP_INT_BUTTON = (9);
+//#define TEMP_INT_BUTTON_CODE          (0b11111101)
+const unsigned char PRESSURE_BUTTON = (7);
+//#define PRESSURE_BUTTON_CODE          (0b11111011)
+const unsigned char HUMIDITY_BUTTON = (11);
+//#define HUMIDITY_BUTTON_CODE          (0b11110111)
+const unsigned char TIME_BATT_BUTTON = (12);
+//#define TIME_BATT_BUTTON_CODE         (0b11101111)
+//#define KEY_MASK                      (0b00011111)
 
 ///////////////////////////////////////////////////////////////////////////////////
 #define TEXT_LANGUAGE (ENG)
@@ -69,6 +79,7 @@ const unsigned char WAKE_BUTTON = (2);
   #define BATTERY_LOW  (3.6)
 #endif
 
+//#define DEBUG_MODE (ENABLED)
 #define DEBUG_MODE (DISABLED)
 
 #endif //_CONFIG_H

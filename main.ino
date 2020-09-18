@@ -87,6 +87,7 @@ byte system_error_code = 0;
 bool device_sleep = false;
 bool first_measure = true;
 char text_buffer[16];
+volatile unsigned char button_pressed;
 
 ///////////////////////////////////////////////////////
 //Tasks
@@ -111,14 +112,35 @@ ISR(TIMER0_OVF_vect)
 }
 #endif
 
-
-ISR(INT0_vect)
+/*
+ISR(PCINT0_vect)
 {
-  PCICR &= ~(1<<PCIE0);
-  EIMSK &= ~(1<<INT0);
+  PCICR &= ~(1<<PCIE0); //Disble interrupt
+  /*
+  button_pressed = 0b11100000;
+  button_pressed |= (digitalRead(TEMP_EXT_BUTTON)<<0);
+  button_pressed |= (digitalRead(TEMP_INT_BUTTON)<<1);
+  button_pressed |= (digitalRead(PRESSURE_BUTTON)<<2);
+  button_pressed |= (digitalRead(HUMIDITY_BUTTON)<<3);
+  button_pressed |= (digitalRead(TIME_BATT_BUTTON)<<4);
+  //button_pressed &= ~(KEY_MASK);
+  */
+  /*
+   button_pressed = 0;
+  if (digitalRead(TEMP_EXT_BUTTON) == LOW) button_pressed = 8;
+  if (digitalRead(TEMP_INT_BUTTON) == LOW) button_pressed = 9;
+  if (digitalRead(PRESSURE_BUTTON) == LOW) button_pressed = 10;
+  if (digitalRead(HUMIDITY_BUTTON) == LOW) button_pressed = 11;
+  if (digitalRead(TIME_BATT_BUTTON) == LOW) button_pressed = 12;
 
-  TaskManager::SetTask_(SYS_device_wake,0);
+#if DEBUG_MODE == ENABLED
+    Serial.print(F("BUTTON_CODE"));
+    Serial.println(button_pressed,DEC);
+#endif 
+  
+  TaskManager::SetTask_(SYS_device_wake,500);
 }
+
 /*
 ISR(WDT_OVF_vect)
 {
@@ -166,9 +188,12 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
   
-  pinMode(WAKE_BUTTON,INPUT);
-  digitalWrite(WAKE_BUTTON, HIGH);
-
+  pinMode(TEMP_EXT_BUTTON,INPUT_PULLUP);
+  pinMode(TEMP_INT_BUTTON,INPUT_PULLUP);
+  pinMode(PRESSURE_BUTTON,INPUT_PULLUP);
+  pinMode(HUMIDITY_BUTTON,INPUT_PULLUP);
+  pinMode(TIME_BATT_BUTTON,INPUT_PULLUP);
+  
   analogReference(DEFAULT);
 
 /////////////////////////////////
@@ -236,13 +261,22 @@ void setup()
 #endif
 
 /// Working
-   TaskManager::SetTask_(BACKGND_read_meteo,0);
-   TaskManager::SetTask_(SYS_checkUART,0);
+   
 #if POWER_SUPPLY == AUTONOMOUS   
    TaskManager::SetTask_(SYS_batt_control,0);
 #endif
+  TaskManager::SetTask_(SYS_checkUART,0);
+  TaskManager::SetTask_(BACKGND_read_meteo,0);
+  //TaskManager::SetTask_(UI_print_date_time,2000);
+  TaskManager::SetTask_(SYS_keyboard_scan,2000);
+/*
+  PCICR |= (1<<PCIE0); //Wait for button press to wake up device
+  PCMSK0 |= (1<<PCINT4)|(1<<PCINT3)|(1<<PCINT2)|(1<<PCINT1)|(1<<PCINT0);
+*/
 
 interrupts();
+
+  device_sleep = true;
 }
 
 void loop()

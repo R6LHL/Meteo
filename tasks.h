@@ -3,6 +3,7 @@
 
 #include "headers.h"
 
+  extern void SYS_keyboard_scan(void);
   extern void SYS_wake_or_sleep(void);
   extern void SYS_led_power_high(void);
   extern void SYS_led_power_low(void);
@@ -46,6 +47,43 @@
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
+void SYS_keyboard_scan(void)
+{
+  button_pressed = 0;
+  
+  if (digitalRead(TEMP_EXT_BUTTON) == LOW) button_pressed = TEMP_EXT_BUTTON;
+  else if (digitalRead(TEMP_INT_BUTTON) == LOW) button_pressed = TEMP_INT_BUTTON;
+  else if (digitalRead(PRESSURE_BUTTON) == LOW) button_pressed = PRESSURE_BUTTON;
+  else if (digitalRead(HUMIDITY_BUTTON) == LOW) button_pressed = HUMIDITY_BUTTON;
+  else if (digitalRead(TIME_BATT_BUTTON) == LOW) button_pressed = TIME_BATT_BUTTON;
+  else 
+  {
+    TaskManager::SetTask_(SYS_keyboard_scan,100);
+#if DEBUG_MODE == ENABLED
+    Serial.print(F("BUTTON_CODE"));
+    Serial.println(button_pressed,DEC);
+#endif
+    return;
+  }
+
+#if DEBUG_MODE == ENABLED
+    Serial.print(F("BUTTON_CODE"));
+    Serial.println(button_pressed,DEC);
+#endif 
+  TaskManager::SetTask_(SYS_device_wake,500);
+  TaskManager::DeleteTask_(SYS_keyboard_scan);
+}
+
+void SYS_wake_or_sleep(void)
+{
+   if (device_sleep == false)
+   {
+     TaskManager::SetTask_(SYS_device_wake,0);
+   }
+    else { (TaskManager::SetTask_(SYS_device_sleep,0));}
+    TaskManager::DeleteTask_(BACKGND_read_meteo);
+}
+/////////////////////////////////////////////////////////////////////////
 
 void SYS_device_sleep(void)
 {
@@ -58,24 +96,63 @@ void SYS_device_sleep(void)
 
      TaskManager::SetTask_(BACKGND_read_meteo, _SENSOR_ASK_DELAY_MS);
      TaskManager::DeleteTask_(UI_print_meteo_Temp);
+     TaskManager::SetTask_(SYS_keyboard_scan,100);
 
-    noInterrupts();
+    /*noInterrupts();
     PCICR |= (1<<PCIE0); //Wait for button press to wake up device
-    EIMSK |= (1<<INT0);
+    PCMSK0 |= (1<<PCINT4)|(1<<PCINT3)|(1<<PCINT2)|(1<<PCINT1)|(1<<PCINT0);
     interrupts();
+    */
 }
 ///////////////////////////////////////////////////////////////////////
 
 void SYS_device_wake(void)
   {
+  
+    TaskManager::DeleteTask_(BACKGND_read_meteo); 
+    
+    switch (button_pressed)
+    {
+      case TEMP_EXT_BUTTON:
+      {
+        TaskManager::SetTask_(UI_print_meteo_Temp,0);
+        break;
+      }
+      case PRESSURE_BUTTON:
+      {
+        TaskManager::SetTask_(UI_print_meteo_Press,0);
+        break;
+      }
+      case HUMIDITY_BUTTON:
+      {
+        TaskManager::SetTask_(UI_print_meteo_Hum,0);
+        break;
+      }
+      case TEMP_INT_BUTTON:
+      {
+        TaskManager::SetTask_(UI_print_room_Temp,0);
+        break;
+      }
+      case TIME_BATT_BUTTON:
+      {
+        TaskManager::SetTask_(UI_print_date_time,0);
+        break;
+      }
+      default:
+      {
+       TaskManager::SetTask_(SYS_device_sleep,0);
+       button_pressed = 0;
+       return;
+      }
+    }
+    
     #if LCD_TYPE == LCD1602
       lcd.backlight();
     #endif
+    
   
     device_sleep = false;
-  
-    TaskManager::DeleteTask_(BACKGND_read_meteo);
-    TaskManager::SetTask_(UI_print_meteo_Temp,0);
+    button_pressed = 0;
 }
 //////////////////////////////////////////////////////
 
@@ -188,17 +265,6 @@ void SYS_batt_control(void)
     TaskManager::SetTask_(SYS_batt_control, BATT_CONTROL_PERIOD_MS);
 }
 #endif //POWER_SUPPLY == AUTONOMOUS
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void SYS_wake_or_sleep(void)
-{
-   if (device_sleep == false)
-   {
-     TaskManager::SetTask_(UI_print_meteo_Temp,0);
-   }
-    else { (TaskManager::SetTask_(SYS_device_sleep,0));}
-    TaskManager::DeleteTask_(BACKGND_read_meteo);
-}
 
 //////////////////////////////////////////////////////////
 //
@@ -295,7 +361,7 @@ void BACKGND_collect_ext_temp(void)
 #if DEBUG_MODE == ENABLED
     Serial.print(F("ext_temp10_60.get_mid_value() "));
     Serial.println(ext_temp10_60.get_mid_value());
-#endif //EXTERNAL_SENSOR == DS18B20
+#endif 
 
     /*!!!BUG!!!
     iteration = now.dayOfTheWeek();
@@ -311,12 +377,13 @@ void BACKGND_collect_ext_temp(void)
     Serial.println(ext_temp60_1440.get_mid_value());
 #endif
     */
-#endif
+#endif //EXTERNAL_SENSOR == DS18B20
 
 #if INTERNAL_SENSOR == BME280
     TaskManager::SetTask_(BACKGND_collect_int_temp,0);
-#endif    
+#else    
     TaskManager::SetTask_(BACKGND_read_meteo, _SENSOR_ASK_DELAY_MS);
+#endif
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -396,6 +463,7 @@ void UI_print_meteo_Temp(void)
 #endif //UART_ENABLED == 1
 
 #if LCD_TYPE == LCD1602
+
     lcd.clear();
     lcd.setCursor(0,0);
     //strcpy(text_buffer,(char*)pgm_read_word(TEXT_TEMPERATURE_IS));
@@ -414,7 +482,7 @@ void UI_compare_Temp(void)
  DateTime now = Clock.now();
  unsigned char iteration = now.hour();
 
-#if LCD_TYPE == LCD1602 
+#if LCD_TYPE == LCD1602
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_DTe);
@@ -425,6 +493,7 @@ void UI_compare_Temp(void)
     lcd.print(TEXT_DTe);
     lcd.print(TEXT_3H);
     lcd.print(ext_temp60_1440.get_delta(iteration,3));
+    
 #endif
 
 #if UART_MODE == TRX  
@@ -455,6 +524,7 @@ void UI_compare_Temp1(void)
   lcd.print(TEXT_DTe);
   lcd.print(TEXT_12H);
   lcd.print(ext_temp60_1440.get_delta(iteration,12));
+  
 #endif
 
 #if UART_MODE == TRX
@@ -485,6 +555,7 @@ void UI_compare_Temp2(void)
   lcd.print(TEXT_DTe);
   lcd.print(TEXT_7D);
   lcd.print(ext_temp1440_10080.get_delta(now.day(),7));
+  
 #endif
   
 #if UART_MODE == TRX
@@ -496,7 +567,7 @@ void UI_compare_Temp2(void)
   Serial.println(ext_temp1440_10080.get_delta(now.day(),7));
 #endif
 
-  TaskManager::SetTask_(UI_print_meteo_Press,_SCREEN_DELAY);
+  TaskManager::SetTask_(SYS_device_sleep,_SCREEN_DELAY);
 }
 ////////////////////////////////////////////////////////////
 
@@ -608,7 +679,7 @@ void UI_compare_pressure2(void)
     Serial.println(pressure1440_10080.get_delta(now.day(),7));
 #endif
 
-  TaskManager::SetTask_(UI_print_meteo_Hum,_SCREEN_DELAY);
+  TaskManager::SetTask_(SYS_device_sleep,_SCREEN_DELAY);
 }
 ///////////////////////////////////////////////////////////////
 
@@ -720,7 +791,7 @@ void UI_compare_humidity2(void)
     Serial.println(humidity1440_10080.get_delta(now.day(),7));
 #endif
 
-  TaskManager::SetTask_(UI_print_room_Temp,_SCREEN_DELAY);
+  TaskManager::SetTask_(SYS_device_sleep,_SCREEN_DELAY);
 }
 ////////////////////////////////////////////////////////////////
 
@@ -804,7 +875,7 @@ void UI_compare_room_temp1(void)
     Serial.println(inner_temp60_1440.get_delta(iteration,12));   
 #endif
 
-  TaskManager::SetTask_(UI_print_date_time,_SCREEN_DELAY);
+  TaskManager::SetTask_(SYS_device_sleep,_SCREEN_DELAY);
 }
 ///////////////////////////////////////////////////////////////////
 
