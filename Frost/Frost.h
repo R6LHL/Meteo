@@ -75,8 +75,14 @@ unsigned char Frost::getProbability(void){
 	
 	probability = (k * temp_substract) + offset;
 	probability = (temp21 / probability) * 100;
+	
 	if (temp21 == 0) probability = 100;
+	
 	if ((state_value_day == false) || (state_value_night == false)) probability = 50;
+	else if ((state_value_day == true) && (state_value_night == true)){
+		state_value_day = false;
+		state_value_night = false;
+	}
 	
 	return probability;
 }
