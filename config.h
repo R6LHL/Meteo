@@ -46,9 +46,9 @@ const unsigned char TIME_BATT_BUTTON = (12);
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-#define EXTERNAL_SENSOR (DS18B20) //comment this string if no external sensor present
+#define EXTERNAL_SENSOR (DALLAS_DS18B20) //comment this string if no external sensor present
 
-#if EXTERNAL_SENSOR == DS18B20
+#if EXTERNAL_SENSOR == DALLAS_DS18B20
   const unsigned char ONE_WIRE_PIN = (3);
   const unsigned int DS18B20_FORCED_DELAY =  (1000);
   #define BYTE_ITERATOR (9)
@@ -79,7 +79,7 @@ const unsigned char TIME_BATT_BUTTON = (12);
   #define BATTERY_LOW  (3.6)
 #endif
 
-//#define DEBUG_MODE (ENABLED)
-#define DEBUG_MODE (DISABLED)
+#define DEBUG_MODE (ENABLED)
+//#define DEBUG_MODE (DISABLED)
 
 #endif //_CONFIG_H

@@ -62,14 +62,14 @@ void SYS_keyboard_scan(void)
 #if DEBUG_MODE == ENABLED
     Serial.print(F("BUTTON_CODE"));
     Serial.println(button_pressed,DEC);
-#endif
+#endif //DEBUG_MODE == ENABLED
     return;
   }
 
 #if DEBUG_MODE == ENABLED
     Serial.print(F("BUTTON_CODE"));
     Serial.println(button_pressed,DEC);
-#endif 
+#endif //DEBUG_MODE == ENABLED
   TaskManager::SetTask_(SYS_device_wake,500);
   TaskManager::DeleteTask_(SYS_keyboard_scan);
 }
@@ -275,18 +275,12 @@ void SYS_batt_control(void)
 void BACKGND_read_meteo(void)
 {
     DateTime now = Clock.now();
-#if EXTERNAL_SENSOR == DS18B20
-    noInterrupts();
-    ext_temp_sens.reset();
-    ext_temp_sens.select(ext_temp_addr);
-    ext_temp_sens.write(0x44, 1); // start conversion
-    interrupts();
-#endif
+
 
 #if INTERNAL_SENSOR == BME280
  #define BME280_DELAY (750)
     meteo_sensor.takeForcedMeasurement();
-#endif  
+#endif  //INTERNAL_SENSOR == BME280
 
     TaskManager::SetTask_(BACKGND_collect_ext_temp, BME280_DELAY);
 }
@@ -294,34 +288,11 @@ void BACKGND_read_meteo(void)
 
 void BACKGND_collect_ext_temp(void)
 {   
-#if EXTERNAL_SENSOR == DS18B20
-    noInterrupts();
-    ext_temp_sens.reset();
-    ext_temp_sens.select(ext_temp_addr);
-    ext_temp_sens.write(0xBE,0); // make sensor transmit scratchpad
-    for(char i = 0; i < BYTE_ITERATOR; i++)
-    {
-    ext_temp_data[i] = ext_temp_sens.read();
-    }
-    interrupts();
-    HighByte = ext_temp_data[1];
-    LowByte = ext_temp_data[0];
+#if EXTERNAL_SENSOR == DALLAS_DS18B20
+    
+    external_temperature = ext_temp_sens.getTempC();
+#endif //EXTERNAL_SENSOR == DALLAS_DS18B20
 
-    unsigned char temp;
-
-    if ((HighByte & 0b11110000) != 0)
-    {
-    temp = ((unsigned int)HighByte << 8) | LowByte;
-    temp = ~temp + 1;
-    LowByte = temp;
-    HighByte = temp >> 8;
-    } 
-
-    tempInt = ((HighByte & 7)<<4)|(LowByte >> 4);
-    tempFloat = (LowByte & 15);
-
-    external_temperature = (tempInt + (tempFloat / 16));
-      
  ////STATISTIC
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
@@ -331,7 +302,7 @@ void BACKGND_collect_ext_temp(void)
     Serial.println(now.minute(), DEC);
     Serial.print(F("now.minute()%10 "));
     Serial.println(now.minute()%10,DEC);
-#endif
+#endif //DEBUG_MODE == ENABLED
     
     ext_temp0_10.mov_measure(external_temperature, iteration);  
     iteration = now.minute()/10;
@@ -339,7 +310,7 @@ void BACKGND_collect_ext_temp(void)
 #if DEBUG_MODE == ENABLED
     Serial.print(F("now.minute()/10 "));
     Serial.println(now.minute()/10, DEC);
-#endif
+#endif //DEBUG_MODE == ENABLED
 
     iteration = now.minute()/10;
     ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
@@ -347,21 +318,21 @@ void BACKGND_collect_ext_temp(void)
 #if  DEBUG_MODE == ENABLED   
     Serial.print(F("ext_temp0_10.get_mid_value() "));
     Serial.println(ext_temp0_10.get_mid_value());
-#endif
+#endif //DEBUG_MODE == ENABLED
     
     iteration = now.hour();
     
 #if DEBUG_MODE == ENABLED    
     Serial.print(F("now.hour() "));
     Serial.println(now.hour());
-#endif
+#endif //DEBUG_MODE == ENABLED
     
     ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
 
 #if DEBUG_MODE == ENABLED
     Serial.print(F("ext_temp10_60.get_mid_value() "));
     Serial.println(ext_temp10_60.get_mid_value());
-#endif 
+#endif  //DEBUG_MODE == ENABLED
 
     /*!!!BUG!!!
     iteration = now.dayOfTheWeek();
@@ -377,7 +348,6 @@ void BACKGND_collect_ext_temp(void)
     Serial.println(ext_temp60_1440.get_mid_value());
 #endif
     */
-#endif //EXTERNAL_SENSOR == DS18B20
 
 #if INTERNAL_SENSOR == BME280
     TaskManager::SetTask_(BACKGND_collect_int_temp,0);
@@ -447,9 +417,11 @@ void UI_print_meteo_Temp(void)
 #if UART_ENABLED == 1  
     DateTime now = Clock.now();
     //strcpy(text_buffer,(char*)pgm_read_word(TEXT_TEMPERATURE_IS));
+#if EXTERNAL_SENSOR == DALLAS_DS18B20
     Serial.print(TEXT_TEMPERATURE_IS);
     Serial.print(external_temperature);
     Serial.println(TEXT_CELSIUS_DEGREE);
+#endif
     
 #if DEBUG_MODE == ENABLED
     Serial.println(ext_temp0_10.get_iterator());
