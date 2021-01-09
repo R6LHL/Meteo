@@ -1,0 +1,10 @@
+TaskManager	KEYWORD1
+
+clearTasks_	KEYWORD2
+ProcessTaskQueue_	KEYWORD2
+TimerTaskService_	KEYWORD2
+SetTask_	KEYWORD2
+DeleteTask_	KEYWORD2
+ChangeTaskDelay_	KEYWORD2
+
+T_TASK_QUEUE_SIZE	LITERAL1
