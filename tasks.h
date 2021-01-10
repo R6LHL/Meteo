@@ -24,6 +24,8 @@
   extern void UI_print_meteo_Hum(void);
   extern void UI_print_room_Temp(void);
   extern void UI_print_date_time(void);//!!!!!!!!!
+
+  extern void UI_print_Frost(void);
   
   extern void UI_compare_Temp(void);
   extern void UI_compare_Temp1(void);
@@ -328,6 +330,7 @@ void BACKGND_collect_ext_temp(void)
 #endif //DEBUG_MODE == ENABLED
     
     ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
+    Frost::setTemp(external_temperature, iteration);
 
 #if DEBUG_MODE == ENABLED
     Serial.print(F("ext_temp10_60.get_mid_value() "));
@@ -445,9 +448,46 @@ void UI_print_meteo_Temp(void)
     lcd.print(TEXT_CELSIUS_DEGREE);
 #endif
             
+    
+    if ((now.hour() >= Frost::night_hour) || (now.hour() < Frost::day_hour)) {
+      TaskManager::SetTask_(UI_print_Frost,_SCREEN_DELAY);
+    }
+    else {
     TaskManager::SetTask_(UI_compare_Temp,_SCREEN_DELAY);
+    }
 }
 /////////////////////////////////////////////////////////////////////////
+
+void UI_print_Frost(void){
+  
+#if LCD_TYPE == LCD1602
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_FROST);
+    lcd.print(Frost::getProbability());
+    lcd.print(TEXT_PERCENT_SIGN);
+    lcd.setCursor(0,1);
+    lcd.print(TEXT_T13);
+    lcd.print(Frost::temp13);
+    lcd.setCursor(8,1);
+    lcd.print(TEXT_T21);
+    lcd.print(Frost::temp21);
+#endif
+
+#if UART_MODE == TRX  
+    Serial.print(TEXT_FROST);
+    Serial.print(Frost::getProbability());
+    Serial.println(TEXT_PERCENT_SIGN);
+    Serial.print(TEXT_T13);
+    Serial.print(Frost::temp13);
+    Serial.println(TEXT_CELSIUS_DEGREE);
+    Serial.print(TEXT_T21);
+    Serial.print(Frost::temp21);
+    Serial.println(TEXT_CELSIUS_DEGREE);
+#endif
+
+  TaskManager::SetTask_(UI_compare_Temp,_SCREEN_DELAY);
+}
 
 void UI_compare_Temp(void)
 {

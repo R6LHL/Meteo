@@ -1,0 +1,13 @@
+Frost 				KEYWORD1
+
+setTemperature 		KEYWORD2
+getProbability		KEYWORD2
+
+probability			LITERAL1
+temp21				LITERAL1
+temp13				LITERAL1
+day_hour			LITERAL1
+night_hour			LITERAL1
+
+state_value_day		LITERAL1
+state_value_night	LITERAL1

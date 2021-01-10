@@ -33,7 +33,7 @@
     #define TEXT_HPA                  (F(" hPa\0"))
 
     #define TEXT_HUMIDITY_IS          (F("Humidity is \0"))
-    #define TEXT_PERCENT_SIGN         (F(" %\0"))
+    #define TEXT_PERCENT_SIGN         (F("%\0"))
 
     #define TEXT_SYSTEM_OK            (F("SYSTEM OK \0"))
     #define TEXT_SYSTEM_ERROR         (F("SYSTEM ERROR \0"))
@@ -47,6 +47,10 @@
 
     #define TEXT_BATT_VOLTAGE         (F("BATTERY: \0"))
     #define TEXT_VOLT_SIGN            (F("V\0"))
+
+    #define TEXT_FROST                (F("Frost: \0"))
+    #define TEXT_T13                  (F("T13:"))
+    #define TEXT_T21                  (F("T21:"))
     /*
     #define TEXT_SET_DATE             (F("setdate\0"))
     //const char TEXT_SET_DATE []PROGMEM = ("setdate \0");
