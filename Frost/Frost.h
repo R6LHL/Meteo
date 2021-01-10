@@ -8,7 +8,7 @@ namespace Frost
 	float temp21 = 0;
 	float probability;
 	
-	unsigned const char day_hour = 17;
+	unsigned const char day_hour = 13;
 	unsigned const char night_hour = 21;
 	
 	void setTemp(float, unsigned char);
