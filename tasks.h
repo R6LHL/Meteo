@@ -467,12 +467,23 @@ void UI_print_Frost(void){
     lcd.print(Frost::getProbability());
     lcd.print(TEXT_PERCENT_SIGN);
     lcd.setCursor(0,1);
+    lcd.print(TEXT_T13);
+    lcd.print(Frost::temp13);
+    lcd.setCursor(8,1);
+    lcd.print(TEXT_T21);
+    lcd.print(Frost::temp21);
 #endif
 
 #if UART_MODE == TRX  
     Serial.print(TEXT_FROST);
     Serial.print(Frost::getProbability());
     Serial.println(TEXT_PERCENT_SIGN);
+    Serial.print(TEXT_T13);
+    Serial.print(Frost::temp13);
+    Serial.println(TEXT_CELSIUS_DEGREE);
+    Serial.print(TEXT_T21);
+    Serial.print(Frost::temp21);
+    Serial.println(TEXT_CELSIUS_DEGREE);
 #endif
 
   TaskManager::SetTask_(UI_compare_Temp,_SCREEN_DELAY);
