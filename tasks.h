@@ -61,14 +61,14 @@ void SYS_keyboard_scan(void)
   else 
   {
     TaskManager::SetTask_(SYS_keyboard_scan,100);
-#if DEBUG_MODE == ENABLED
+#ifdef DEBUG_MODE  
     Serial.print(F("BUTTON_CODE"));
     Serial.println(button_pressed,DEC);
 #endif //DEBUG_MODE == ENABLED
     return;
   }
 
-#if DEBUG_MODE == ENABLED
+#ifdef DEBUG_MODE  
     Serial.print(F("BUTTON_CODE"));
     Serial.println(button_pressed,DEC);
 #endif //DEBUG_MODE == ENABLED
@@ -299,7 +299,7 @@ void BACKGND_collect_ext_temp(void)
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
     
-#if DEBUG_MODE == ENABLED
+#ifdef DEBUG_MODE  
     Serial.print(F("now.minute() "));
     Serial.println(now.minute(), DEC);
     Serial.print(F("now.minute()%10 "));
@@ -309,7 +309,7 @@ void BACKGND_collect_ext_temp(void)
     ext_temp0_10.mov_measure(external_temperature, iteration);  
     iteration = now.minute()/10;
     
-#if DEBUG_MODE == ENABLED
+#ifdef DEBUG_MODE  
     Serial.print(F("now.minute()/10 "));
     Serial.println(now.minute()/10, DEC);
 #endif //DEBUG_MODE == ENABLED
@@ -317,14 +317,14 @@ void BACKGND_collect_ext_temp(void)
     iteration = now.minute()/10;
     ext_temp10_60.mov_measure(ext_temp0_10.get_mid_value(), iteration);
     
-#if  DEBUG_MODE == ENABLED   
+#ifdef DEBUG_MODE   
     Serial.print(F("ext_temp0_10.get_mid_value() "));
     Serial.println(ext_temp0_10.get_mid_value());
 #endif //DEBUG_MODE == ENABLED
     
     iteration = now.hour();
     
-#if DEBUG_MODE == ENABLED    
+#ifdef DEBUG_MODE      
     Serial.print(F("now.hour() "));
     Serial.println(now.hour());
 #endif //DEBUG_MODE == ENABLED
@@ -332,7 +332,7 @@ void BACKGND_collect_ext_temp(void)
     ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
     Frost::setTemp(external_temperature, iteration);
 
-#if DEBUG_MODE == ENABLED
+#ifdef DEBUG_MODE  
     Serial.print(F("ext_temp10_60.get_mid_value() "));
     Serial.println(ext_temp10_60.get_mid_value());
 #endif  //DEBUG_MODE == ENABLED
@@ -426,7 +426,7 @@ void UI_print_meteo_Temp(void)
     Serial.println(TEXT_CELSIUS_DEGREE);
 #endif
     
-#if DEBUG_MODE == ENABLED
+#ifdef DEBUG_MODE  
     Serial.println(ext_temp0_10.get_iterator());
     Serial.println(now.minute()%10);
     Serial.println(ext_temp10_60.get_iterator());
@@ -943,12 +943,18 @@ void UI_print_date_time (void)
 
 void UI_print_supply_voltage(void)
 {
-#if LCD_TYPE == LCD1602
-    int battery = analogRead(SUPPLY_VOLTAGE_ANALOG_PIN);
-    float voltage = (battery) * (AREF_VOLTAGE) * (BATT_VOLTAGE_DIVIDER);
-    voltage = voltage / 1024;
-    voltage += CALIBRATION_ADDITIVE;
+    unsigned int battery;
+    unsigned char max_i = 32;
     
+    for (unsigned char i = 0; i < max_i; i++)
+    {
+    battery += analogRead(SUPPLY_VOLTAGE_ANALOG_PIN); // Сумма замеров
+    }
+    float voltage = (battery) * (AREF_VOLTAGE) * (BATT_VOLTAGE_DIVIDER);
+    voltage = voltage / 1024 /(float)max_i;
+    voltage += CALIBRATION_ADDITIVE;
+  
+#if LCD_TYPE == LCD1602    
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_BATT_VOLTAGE);

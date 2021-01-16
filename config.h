@@ -78,10 +78,9 @@ const unsigned char TIME_BATT_BUTTON = (12);
   #define CALIBRATION_ADDITIVE (2.81-2.64)
   #define BATT_CONTROL_PERIOD_MS (60000)
   #define BATTERY_HIGH (4.14) 
-  #define BATTERY_LOW  (3.6)
+  #define BATTERY_LOW  (3.0)
 #endif
 
-//#define DEBUG_MODE (ENABLED)
-#define DEBUG_MODE (DISABLED)
+//#define DEBUG_MODE
 
 #endif //_CONFIG_H

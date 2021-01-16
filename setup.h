@@ -4,14 +4,14 @@
 /////////////////////////////////////
 void Setup_timers(void){
 	
-#if DEBUG_MODE == ENABLED	
+#ifdef DEBUG_MODE  	
 	Serial.print(F("Setup timers...\0"));
 #endif
 	
   TCCR2B |= (1<<CS22); // (clk/64)
   TIMSK2 |= (1<<TOIE2); // ovf interrupt enabled
   
-#if DEBUG_MODE == ENABLED	
+#ifdef DEBUG_MODE  
 	Serial.println(F("Done!\0"));
 #endif
 }
@@ -21,7 +21,7 @@ void Setup_timers(void){
 
 void Setup_IOpins(void){
 	
-#if DEBUG_MODE == ENABLED	
+#ifdef DEBUG_MODE  
 	Serial.print(F("Setup IO pins...\0"));
 #endif
 	
@@ -34,7 +34,7 @@ void Setup_IOpins(void){
 	pinMode(HUMIDITY_BUTTON,INPUT_PULLUP);
 	pinMode(TIME_BATT_BUTTON,INPUT_PULLUP);
 	
-#if DEBUG_MODE == ENABLED	
+#ifdef DEBUG_MODE  
 	Serial.println(F("Done!\0"));
 #endif
 }
@@ -44,13 +44,13 @@ void Setup_UART(void){
 #if UART_ENABLED == 1
   Serial.begin(9600);
   
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE   
 	Serial.print(F("Setup UART...\0"));
 	#endif
 	
   UCSR0B |= (1<<RXCIE0);
   
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE   
 	Serial.println(F("Done!\0"));
 	#endif
   
@@ -62,14 +62,14 @@ void Setup_LCD(void){
 #if LCD_AVAILABLE == 1
   #if LCD_TYPE == LCD1602
   
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE  
 	Serial.print(F("Setup LCD...\0"));
 	#endif
 	
     lcd.init();                   
     lcd.backlight();// Включаем подсветку дисплея
 	
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE   
 	Serial.println(F("Done!"));
 	#endif
 	
@@ -81,7 +81,7 @@ void Setup_internal_sensor(void){
 	
 #if INTERNAL_SENSOR == BME280
 		
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE   
 	Serial.print(F("Setup BME280...\0"));
 	#endif
      
@@ -104,7 +104,7 @@ void Setup_internal_sensor(void){
     Adafruit_BME280::SAMPLING_X1,  /* humidity*/
     Adafruit_BME280::FILTER_X16); /* Фильрация. */
 	
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE  
 	Serial.println(F("Done!\0"));
 	#endif
     
@@ -115,13 +115,13 @@ void Setup_RTC(void){
 	
 #if REAL_TIME_CLOCK == DS3231_
 
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE   
 	Serial.print(F("Setup DS3231 RTC...\0"));
 	#endif
 	
 	rtc.setClockMode(false); //24h format
 	
-	#if DEBUG_MODE == ENABLED  
+	#ifdef DEBUG_MODE    
 	Serial.println(F("Done!\0"));
 	#endif
 	
@@ -129,4 +129,3 @@ void Setup_RTC(void){
 }
 
 #endif //_SETUP_H
-

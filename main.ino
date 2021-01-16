@@ -96,7 +96,7 @@ void setup()
   Setup_LCD();
   Setup_internal_sensor();
   
-#if DEBUG_MODE == ENABLED  
+#ifdef DEBUG_MODE  
   Serial.print(F("Setup initial tasks...\0"));
 #endif
    
@@ -110,7 +110,7 @@ void setup()
 
   device_sleep = true;
 
-#if DEBUG_MODE == ENABLED  
+#ifdef DEBUG_MODE  
   Serial.println(F("Done!\0"));
 #endif
 }
