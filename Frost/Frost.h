@@ -84,5 +84,7 @@ unsigned char Frost::getProbability(void){
 		state_value_night = false;
 	}
 	
+	if (probability > 100) probability = 100;
+	
 	return probability;
 }
