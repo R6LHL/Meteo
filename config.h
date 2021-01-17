@@ -82,7 +82,7 @@ const unsigned char TIME_BATT_BUTTON = (12);
 #if POWER_SUPPLY == AUTONOMOUS
   #define AREF_VOLTAGE  (5.0)
   #define SUPPLY_VOLTAGE_ANALOG_PIN (A0)
-  #define BATT_VOLTAGE_DIVIDER (1.0)
+  #define BATT_VOLTAGE_DIVIDER (2.0)
   #define BATT_VOLTAGE_MEASURED (2.81)
   #define BATT_VOLTAGE_MCU      (2.64)
   #define CALIBRATION_ADDITIVE (2.81-2.64)
