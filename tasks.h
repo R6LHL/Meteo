@@ -18,6 +18,7 @@
   extern void BACKGND_collect_int_temp(void);
   extern void BACKGND_collect_pressure(void);
   extern void BACKGND_collect_humidity(void);
+  extern void BACKGND_check_meteo_data(void);
   
   extern void UI_print_meteo_Temp(void);
   extern void UI_print_meteo_Press(void);
@@ -26,6 +27,7 @@
   extern void UI_print_date_time(void);//!!!!!!!!!
 
   extern void UI_print_Frost(void);
+  extern void UI_print_meteo_Fallout(void);
   
   extern void UI_compare_Temp(void);
   extern void UI_compare_Temp1(void);
@@ -298,7 +300,8 @@ void BACKGND_collect_ext_temp(void)
  ////STATISTIC
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
-    
+    Frost::setTemp(external_temperature, iteration);
+       
 #ifdef DEBUG_MODE  
     Serial.print(F("now.minute() "));
     Serial.println(now.minute(), DEC);
@@ -330,7 +333,6 @@ void BACKGND_collect_ext_temp(void)
 #endif //DEBUG_MODE == ENABLED
     
     ext_temp60_1440.mov_measure(ext_temp10_60.get_mid_value(), iteration);
-    Frost::setTemp(external_temperature, iteration);
 
 #ifdef DEBUG_MODE  
     Serial.print(F("ext_temp10_60.get_mid_value() "));
@@ -365,7 +367,9 @@ void BACKGND_collect_int_temp(void)
    ////STATISTIC
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
-    inner_temp0_10.mov_measure(meteo_sensor.readTemperature(), iteration);
+    internal_temperature = meteo_sensor.readTemperature();
+    
+    inner_temp0_10.mov_measure(internal_temperature, iteration);
     iteration = now.minute()/10;
     inner_temp10_60.mov_measure(inner_temp0_10.get_mid_value(), iteration);
     iteration = now.hour();
@@ -384,7 +388,9 @@ void BACKGND_collect_pressure(void)
     ////STATISTIC
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
-    pressure0_10.mov_measure((meteo_sensor.readPressure()/100.0F), iteration);
+    pressure = (meteo_sensor.readPressure()/100.0F); 
+       
+    pressure0_10.mov_measure(pressure, iteration);
     iteration = now.minute()/10;
     pressure10_60.mov_measure(pressure0_10.get_mid_value(), iteration);
     iteration = now.hour(); 
@@ -402,7 +408,9 @@ void BACKGND_collect_humidity(void)
   ////STATISTIC
     DateTime now = Clock.now();
     unsigned char iteration = (now.minute()%10);
-    humidity0_10.mov_measure(meteo_sensor.readHumidity(), iteration);
+    humidity = meteo_sensor.readHumidity();
+    
+    humidity0_10.mov_measure(humidity, iteration);
     iteration = now.minute()/10;
     humidity10_60.mov_measure(humidity0_10.get_mid_value(), iteration);   
     iteration = now.hour();
@@ -411,9 +419,85 @@ void BACKGND_collect_humidity(void)
     iteration = now.dayOfTheWeek();
     humidity1440_10080.mov_measure(humidity60_1440.get_mid_value(), iteration);
     */  
-  TaskManager::SetTask_(SYS_wake_or_sleep,0);
+  TaskManager::SetTask_(BACKGND_check_meteo_data,0);
 }
 ////////////////////////////////////////////////////////////////////////////////////
+
+void BACKGND_check_meteo_data(void){
+
+  frost = Frost::getProbability();
+  
+  if (external_temperature <= 0) {
+    frost = 100;
+  }
+
+  if (frost <= FROST_THRESHOLD){
+    frost_state = MeteoState::high;
+    //TODO LED BLINKING
+  }
+  else {
+    frost_state = MeteoState::normal;
+    //TODO LED BLINKING OFF
+  }
+
+
+  if (internal_temperature < INTERNAL_TEMP_MIN){
+    int_temp_state = MeteoState::low;
+    // TODO LED BLINKING  
+  }
+  else if (internal_temperature > INTERNAL_TEMP_MAX){
+    int_temp_state = MeteoState::high;
+    // TODO LED BLINKING
+  }
+  else {
+    int_temp_state = MeteoState::normal;
+    //TODO LED BLINKING OFF
+  }
+
+
+  float pressure_sub = (float)pressure - PRESSURE_MIN_HPA;
+  fallout = ((float)(LOCAL_PRESSURE_SUB - pressure_sub) / LOCAL_PRESSURE_SUB ) * 100;
+  if (fallout > 100)fallout = 100;
+  else if (fallout < 0) fallout = 0;
+  
+  if (fallout > FALLOUT_THRESHOLD){
+    fallout_state = MeteoState::high;
+    //TODO LED BLINKING
+  }
+  else {
+    fallout_state = MeteoState::normal;
+    //TODO LED BLINKING OFF   
+  }
+
+  if (external_temperature >= SUMMER_WINTER_THRESHOLD){
+    if (humidity >= SUMMER_HUMIDITY_HIGH){
+      humidity_state = MeteoState::high;
+      //TODO LED BLINKING
+    }
+    else if (humidity < HUMIDITY_LOW){
+      humidity_state = MeteoState::low;
+      //TODO LED BLINKING
+    }
+  }
+  else if (external_temperature < SUMMER_WINTER_THRESHOLD){
+    if (humidity >= WINTER_HUMIDITY_HIGH){
+      humidity_state = MeteoState::high;
+      //TODO LED BLINKING
+    }
+    else if (humidity < HUMIDITY_LOW){
+      humidity_state = MeteoState::low;
+      //TODO LED BLINKING
+    }
+    
+  }
+  else {
+      humidity_state = MeteoState::normal;
+      //TODO LED BLINKING OFF
+    }
+   TaskManager::SetTask_(SYS_wake_or_sleep,0);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 void UI_print_meteo_Temp(void)
 {
@@ -459,12 +543,12 @@ void UI_print_meteo_Temp(void)
 /////////////////////////////////////////////////////////////////////////
 
 void UI_print_Frost(void){
-  
+    
 #if LCD_TYPE == LCD1602
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print(TEXT_FROST);
-    lcd.print(Frost::getProbability());
+    lcd.print(frost);
     lcd.print(TEXT_PERCENT_SIGN);
     lcd.setCursor(0,1);
     lcd.print(TEXT_T13);
@@ -476,7 +560,7 @@ void UI_print_Frost(void){
 
 #if UART_MODE == TRX  
     Serial.print(TEXT_FROST);
-    Serial.print(Frost::getProbability());
+    Serial.print(frost);
     Serial.println(TEXT_PERCENT_SIGN);
     Serial.print(TEXT_T13);
     Serial.print(Frost::temp13);
@@ -587,8 +671,7 @@ void UI_print_meteo_Press(void)
 {
 #if UART_MODE == TRX   
     Serial.print(TEXT_PRESSURE_IS);
-    Serial.print((meteo_sensor.readPressure()/100.0F));
-    //Serial.print(external_temperature);         //DEBUG
+    Serial.print(pressure);
     Serial.println(TEXT_HPA );
 #endif    
 
@@ -597,9 +680,39 @@ void UI_print_meteo_Press(void)
     lcd.setCursor(0,0);
     lcd.print(TEXT_PRESSURE_IS);
     lcd.setCursor(0,1);
-    lcd.print((meteo_sensor.readPressure()/100.0F));
-    //lcd.print(external_temperature);            //DEBUG
+    lcd.print(pressure);
     lcd.print(TEXT_HPA );
+#endif
+    
+    TaskManager::SetTask_(UI_print_meteo_Fallout,_SCREEN_DELAY);
+}
+///////////////////////////////////////////////////////////////  
+
+
+void UI_print_meteo_Fallout(void)
+{
+
+#if UART_MODE == TRX   
+    Serial.print(TEXT_FALLOUT);
+    Serial.print(fallout);
+    Serial.println(TEXT_PERCENT_SIGN);
+#endif    
+
+#if LCD_TYPE == LCD1602
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(TEXT_FALLOUT);
+    lcd.setCursor(8,0);
+    lcd.print(fallout);
+    lcd.print(TEXT_PERCENT_SIGN);
+    lcd.setCursor(0,1);
+    if (fallout_state == MeteoState::low){
+      lcd.print(TEXT_LOW);
+    }
+    else if (fallout_state == MeteoState::high){
+      lcd.print(TEXT_HIGH);
+    }
+    
 #endif
     
     TaskManager::SetTask_(UI_compare_pressure,_SCREEN_DELAY);
@@ -697,9 +810,11 @@ void UI_compare_pressure2(void)
 
 void UI_print_meteo_Hum(void)
 {
+  humidity = meteo_sensor.readHumidity();
+  
 #if UART_MODE == TRX    
   Serial.print(TEXT_HUMIDITY_IS);
-    Serial.print(meteo_sensor.readHumidity());
+    Serial.print(humidity);
     //Serial.print(external_temperature);         //DEBUG
     Serial.println(TEXT_PERCENT_SIGN );
 #endif    
@@ -709,9 +824,16 @@ void UI_print_meteo_Hum(void)
     lcd.setCursor(0,0);
     lcd.print(TEXT_HUMIDITY_IS);
     lcd.setCursor(0,1);
-    lcd.print(meteo_sensor.readHumidity());
-    //lcd.print(external_temperature);            //DEBUG
+    lcd.print(humidity);
     lcd.print(TEXT_PERCENT_SIGN );
+    lcd.setCursor(8,1);
+    if (humidity_state == MeteoState::low){
+      lcd.print(TEXT_LOW);
+    }
+    else if (humidity_state == MeteoState::high){
+      lcd.print(TEXT_HIGH);
+    }
+    
 #endif
     
     TaskManager::SetTask_(UI_compare_humidity,_SCREEN_DELAY);
@@ -811,7 +933,7 @@ void UI_print_room_Temp(void)
 {
 #if UART_MODE == TRX    
     Serial.print(TEXT_ROOM_TEMPERATURE);
-    Serial.print(meteo_sensor.readTemperature());
+    Serial.print(internal_temperature);
     //Serial.print(external_temperature);         //DEBUG
     Serial.println(TEXT_CELSIUS_DEGREE  );
 #endif    
@@ -821,9 +943,16 @@ void UI_print_room_Temp(void)
     lcd.setCursor(0,0);
     lcd.print(TEXT_ROOM_TEMPERATURE);
     lcd.setCursor(0,1);
-    lcd.print(meteo_sensor.readTemperature());
+    lcd.print(internal_temperature);
     //lcd.print(external_temperature);            //DEBUG
     lcd.print(TEXT_CELSIUS_DEGREE  );
+    lcd.setCursor(9,1);
+    if (int_temp_state == MeteoState::low){
+      lcd.print(TEXT_LOW);
+    }
+    else if (int_temp_state == MeteoState::high){
+      lcd.print(TEXT_HIGH);
+    }
 #endif
     
     TaskManager::SetTask_(UI_compare_room_temp,_SCREEN_DELAY);

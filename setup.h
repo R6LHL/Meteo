@@ -120,6 +120,7 @@ void Setup_RTC(void){
 	#endif
 	
 	rtc.setClockMode(false); //24h format
+  //rtc.setA2Time(1, 1, 1, 0b00011100, bool A2Dy, bool A2h12, bool A2PM); //Alarm once per minute (at seconds = 00)
 	
 	#ifdef DEBUG_MODE    
 	Serial.println(F("Done!\0"));

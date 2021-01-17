@@ -25,6 +25,7 @@
 
 #ifdef REAL_TIME_CLOCK
   #if REAL_TIME_CLOCK == DS3231_
+  //https://github.com/NorthernWidget/DS3231/blob/master/DS3231.h
     #include <DS3231.h>
   #endif
 #endif

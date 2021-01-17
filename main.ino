@@ -40,7 +40,11 @@
   */
   Serial_measure_f60_1440     humidity60_1440;
   Serial_measure_f1440_10080  humidity1440_10080;
-  
+
+  double pressure;
+  float humidity;
+  float internal_temperature;
+  float fallout;
     
 #endif
 
@@ -52,6 +56,7 @@
     DS18B20 ext_temp_sens(ONE_WIRE_PIN);
     
     float external_temperature;
+    unsigned char frost;
 
     Serial_measure_f0_10        ext_temp0_10;
     Serial_measure_f10_60       ext_temp10_60;
@@ -74,7 +79,18 @@
     //DateTime current_date;
 #endif
 
-byte system_error_code = 0;
+enum MeteoState{
+  normal = 0,
+  low = 1,
+  high = 2,
+};
+
+unsigned char ext_temp_state = MeteoState::normal;
+unsigned char int_temp_state = MeteoState::normal;
+unsigned char frost_state = MeteoState::normal;
+unsigned char fallout_state = MeteoState::normal;
+unsigned char humidity_state = MeteoState::normal;
+
 bool device_sleep = false;
 bool first_measure = true;
 char text_buffer[16];

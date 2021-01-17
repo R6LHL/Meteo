@@ -51,6 +51,10 @@
     #define TEXT_FROST                (F("Frost: \0"))
     #define TEXT_T13                  (F("T13:"))
     #define TEXT_T21                  (F("T21:"))
+
+    #define TEXT_FALLOUT              (F("Fallout: \0"))
+    #define TEXT_LOW                  (F("Low!\0"))
+    #define TEXT_HIGH                 (F("High!\0"))
     /*
     #define TEXT_SET_DATE             (F("setdate\0"))
     //const char TEXT_SET_DATE []PROGMEM = ("setdate \0");
